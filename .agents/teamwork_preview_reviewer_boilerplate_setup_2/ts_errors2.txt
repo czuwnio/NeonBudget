@@ -1,0 +1,4 @@
+
+> neon-budget@1.0.0 ts:check
+> tsc --noEmit
+

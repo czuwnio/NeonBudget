@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "NeonBudget",
+    "slug": "neon-budget",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0D0D11"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0D0D11"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "shortName": "NeonBudget",
+      "themeColor": "#0D0D11",
+      "backgroundColor": "#0D0D11",
+      "display": "standalone"
+    }
+  }
+}

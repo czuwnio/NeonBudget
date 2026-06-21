@@ -1,0 +1,21 @@
+
+> neon-budget@1.0.0 test
+> jest
+
+PASS __tests__/App.test.tsx
+PASS __tests__/e2e/tier3_combinations.test.tsx
+PASS __tests__/e2e/tier2_boundaries.test.tsx
+PASS __tests__/e2e/tier4_workflows.test.tsx
+PASS __tests__/e2e/tier1_features.test.tsx
+----------|---------|----------|---------|---------|-------------------
+File      | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+----------|---------|----------|---------|---------|-------------------
+All files |   99.03 |    95.83 |     100 |      99 |                   
+ App.tsx  |   99.03 |    95.83 |     100 |      99 | 51                
+----------|---------|----------|---------|---------|-------------------
+
+Test Suites: 5 passed, 5 total
+Tests:       27 passed, 27 total
+Snapshots:   0 total
+Time:        1.975 s, estimated 2 s
+Ran all test suites.

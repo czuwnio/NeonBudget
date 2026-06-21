@@ -1,0 +1,289 @@
+
+> neon-budget@1.0.0 test
+> jest
+
+PASS __tests__/App.test.tsx
+PASS __tests__/e2e/tier2_boundaries.test.tsx
+PASS __tests__/e2e/tier1_features.test.tsx
+FAIL __tests__/e2e/tier4_workflows.test.tsx
+  ● Tier 4: Real-World Scenarios › TC-4.1: Happy Path Budgeting
+
+    getByAccessibilityLabel is not a function
+
+    [0m [90m 30 |[39m
+     [90m 31 |[39m     [90m// 1. Initial launch[39m
+    [31m[1m>[22m[39m[90m 32 |[39m     [36mawait[39m waitFor(() [33m=>[39m {
+     [90m    |[39m                  [31m[1m^[22m[39m
+     [90m 33 |[39m       expect(getByLabelText([32m'empty-state-text'[39m))[33m.[39mtoBeTruthy()[33m;[39m
+     [90m 34 |[39m     })[33m;[39m
+     [90m 35 |[39m[0m
+
+      at Object.<anonymous> (__tests__/e2e/tier4_workflows.test.tsx:32:18)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:17)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:17:9)
+      at node_modules/@babel/runtime/helpers/asyncToGenerator.js:22:7
+      at Object.<anonymous> (node_modules/@babel/runtime/helpers/asyncToGenerator.js:14:12)
+
+  ● Tier 4: Real-World Scenarios › TC-4.2: Deficit Spending
+
+    TypeError: getByAccessibilityLabel is not a function
+
+    [0m [90m 91 |[39m
+     [90m 92 |[39m     [90m// Add Expense $100[39m
+    [31m[1m>[22m[39m[90m 93 |[39m     fireEvent[33m.[39mchangeText(getByLabelText([32m'amount-input'[39m)[33m,[39m [32m'100.00'[39m)[33m;[39m
+     [90m    |[39m                          [31m[1m^[22m[39m
+     [90m 94 |[39m     fireEvent[33m.[39mchangeText(getByLabelText([32m'description-input'[39m)[33m,[39m [32m'Coffee & snack'[39m)[33m;[39m
+     [90m 95 |[39m     fireEvent[33m.[39mpress(getByLabelText([32m'type-toggle-expense'[39m))[33m;[39m
+     [90m 96 |[39m     fireEvent[33m.[39mpress(getByLabelText([32m'category-option-Food'[39m))[33m;[39m[0m
+
+      at Object.getByAccessibilityLabel (__tests__/e2e/tier4_workflows.test.tsx:93:26)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:17)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:17:9)
+      at node_modules/@babel/runtime/helpers/asyncToGenerator.js:22:7
+      at Object.<anonymous> (node_modules/@babel/runtime/helpers/asyncToGenerator.js:14:12)
+
+  ● Tier 4: Real-World Scenarios › TC-4.3: App Crash/Reload Session Continuity
+
+    TypeError: getByAccessibilityLabel is not a function
+
+    [0m [90m 128 |[39m     [36mconst[39m { getByLabelText[33m,[39m unmount } [33m=[39m render([33m<[39m[33mApp[39m [33m/[39m[33m>[39m)[33m;[39m
+     [90m 129 |[39m
+    [31m[1m>[22m[39m[90m 130 |[39m     fireEvent[33m.[39mchangeText(getByLabelText([32m'amount-input'[39m)[33m,[39m [32m'120.00'[39m)[33m;[39m
+     [90m     |[39m                          [31m[1m^[22m[39m
+     [90m 131 |[39m     fireEvent[33m.[39mchangeText(getByLabelText([32m'description-input'[39m)[33m,[39m [32m'Initial item'[39m)[33m;[39m
+     [90m 132 |[39m     fireEvent[33m.[39mpress(getByLabelText([32m'type-toggle-income'[39m))[33m;[39m
+     [90m 133 |[39m     fireEvent[33m.[39mpress(getByLabelText([32m'category-option-Other'[39m))[33m;[39m[0m
+
+      at Object.getByAccessibilityLabel (__tests__/e2e/tier4_workflows.test.tsx:130:26)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:17)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:17:9)
+      at node_modules/@babel/runtime/helpers/asyncToGenerator.js:22:7
+      at Object.<anonymous> (node_modules/@babel/runtime/helpers/asyncToGenerator.js:14:12)
+
+FAIL __tests__/e2e/tier3_combinations.test.tsx
+  ● Tier 3: Cross-Feature Combinations › TC-3.1: Add Transaction -> Storage Sync -> List update -> Dashboard recalculation
+
+    Unable to find an element with accessibility label: transaction-item-desc
+
+    [36m<RCTSafeAreaView[39m
+      [33mtestID[39m=[32m"app-container"[39m
+    [36m>[39m
+      [36m<RCTScrollView[39m
+        [33mtestID[39m=[32m"app-content"[39m
+      [36m>[39m
+        [36m<View>[39m
+          [36m<Text[39m
+            [33mtestID[39m=[32m"app-title"[39m
+          [36m>[39m
+            [0mNeonBudget[0m
+          [36m</Text>[39m
+          [36m<Text[39m
+            [33mtestID[39m=[32m"app-subtitle"[39m
+          [36m>[39m
+            [0mTrack your wealth in neon light[0m
+          [36m</Text>[39m
+          [36m<View[39m
+            [33mtestID[39m=[32m"balance-card"[39m
+          [36m>[39m
+            [36m<Text>[39m
+              [0mCURRENT BALANCE[0m
+            [36m</Text>[39m
+            [36m<Text[39m
+              [33maccessibilityLabel[39m=[32m"total-balance"[39m
+              [33mtestID[39m=[32m"balance-value"[39m
+            [36m>[39m
+              [0m$0.00[0m
+            [36m</Text>[39m
+            [36m<View>[39m
+              [36m<View>[39m
+                [36m<Text>[39m
+                  [0mINCOME[0m
+                [36m</Text>[39m
+                [36m<Text[39m
+                  [33maccessibilityLabel[39m=[32m"total-income"[39m
+                [36m>[39m
+                  [0m$0.00[0m
+                [36m</Text>[39m
+              [36m</View>[39m
+              [36m<View>[39m
+                [36m<Text>[39m
+                  [0mEXPENSE[0m
+                [36m</Text>[39m
+                [36m<Text[39m
+                  [33maccessibilityLabel[39m=[32m"total-expense"[39m
+                [36m>[39m
+                  [0m$0.00[0m
+                [36m</Text>[39m
+              [36m</View>[39m
+            [36m</View>[39m
+          [36m</View>[39m
+          [36m<View[39m
+            [33maccessibilityLabel[39m=[32m"category-chart"[39m
+          [36m>[39m
+            [36m<Text>[39m
+              [0mEXPENSE DISTRIBUTION[0m
+            [36m</Text>[39m
+            [36m<Text>[39m
+              [0mNo expense data[0m
+            [36m</Text>[39m
+          [36m</View>[39m
+          [36m<View>[39m
+            [36m<Text>[39m
+              [0mNEW TRANSACTION[0m
+            [36m</Text>[39m
+            [36m<Text[39m
+              [33maccessibilityLabel[39m=[32m"validation-error"[39m
+              [33mstyle[39m=[32m{
+                {
+                  "display": "none",
+                }
+              }[39m
+            [36m/>[39m
+            [36m<View>[39m
+              [36m<View[39m
+                [33maccessibilityLabel[39m=[32m"type-toggle-income"[39m
+                [33maccessible[39m=[32m{true}[39m
+              [36m>[39m
+                [36m<Text>[39m
+                  [0mIncome[0m
+                [36m</Text>[39m
+              [36m</View>[39m
+              [36m<View[39m
+                [33maccessibilityLabel[39m=[32m"type-toggle-expense"[39m
+                [33maccessible[39m=[32m{true}[39m
+              [36m>[39m
+                [36m<Text>[39m
+                  [0mExpense[0m
+                [36m</Text>[39m
+              [36m</View>[39m
+            [36m</View>[39m
+            [36m<TextInput[39m
+              [33maccessibilityLabel[39m=[32m"amount-input"[39m
+              [33mplaceholder[39m=[32m"Amount"[39m
+              [33mvalue[39m=[32m"45.00"[39m
+            [36m/>[39m
+            [36m<TextInput[39m
+              [33maccessibilityLabel[39m=[32m"description-input"[39m
+              [33mplaceholder[39m=[32m"Description"[39m
+              [33mvalue[39m=[32m"Groceries"[39m
+            [36m/>[39m
+            [36m<View>[39m
+              [36m<View[39m
+                [33maccessibilityLabel[39m=[32m"category-picker-button"[39m
+                [33maccessible[39m=[32m{true}[39m
+              [36m>[39m
+                [36m<Text>[39m
+                  [0mCategory: [0m
+                  [0mFood[0m
+                [36m</Text>[39m
+              [36m</View>[39m
+              [36m<View>[39m
+                [36m<View[39m
+                  [33maccessibilityLabel[39m=[32m"category-option-Food"[39m
+                  [33maccessible[39m=[32m{true}[39m
+                [36m>[39m
+                  [36m<Text>[39m
+                    [0mFood[0m
+                  [36m</Text>[39m
+                [36m</View>[39m
+                [36m<View[39m
+                  [33maccessibilityLabel[39m=[32m"category-option-Rent"[39m
+                  [33maccessible[39m=[32m{true}[39m
+                [36m>[39m
+                  [36m<Text>[39m
+                    [0mRent[0m
+                  [36m</Text>[39m
+                [36m</View>[39m
+                [36m<View[39m
+                  [33maccessibilityLabel[39m=[32m"category-option-Transport"[39m
+                  [33maccessible[39m=[32m{true}[39m
+                [36m>[39m
+                  [36m<Text>[39m
+                    [0mTransport[0m
+                  [36m</Text>[39m
+                [36m</View>[39m
+                [36m<View[39m
+                  [33maccessibilityLabel[39m=[32m"category-option-Utilities"[39m
+                  [33maccessible[39m=[32m{true}[39m
+                [36m>[39m
+                  [36m<Text>[39m
+                    [0mUtilities[0m
+                  [36m</Text>[39m
+                [36m</View>[39m
+                [36m<View[39m
+                  [33maccessibilityLabel[39m=[32m"category-option-Other"[39m
+                  [33maccessible[39m=[32m{true}[39m
+                [36m>[39m
+                  [36m<Text>[39m
+                    [0mOther[0m
+                  [36m</Text>[39m
+                [36m</View>[39m
+              [36m</View>[39m
+            [36m</View>[39m
+            [36m<View[39m
+              [33maccessibilityLabel[39m=[32m"add-transaction-button"[39m
+              [33maccessible[39m=[32m{true}[39m
+            [36m>[39m
+              [36m<Text>[39m
+                [0mAdd Transaction[0m
+              [36m</Text>[39m
+            [36m</View>[39m
+          [36m</View>[39m
+          [36m<View>[39m
+            [36m<Text>[39m
+              [0mHISTORY[0m
+            [36m</Text>[39m
+            [36m<Text[39m
+              [33maccessibilityLabel[39m=[32m"empty-state-text"[39m
+            [36m>[39m
+              [0mNo transactions yet[0m
+            [36m</Text>[39m
+          [36m</View>[39m
+        [36m</View>[39m
+      [36m</RCTScrollView>[39m
+    [36m</RCTSafeAreaView>[39m
+
+    [0m [90m 42 |[39m
+     [90m 43 |[39m     [90m// Verify list update[39m
+    [31m[1m>[22m[39m[90m 44 |[39m     expect(getTextContent(getByLabelText([32m'transaction-item-desc'[39m)))[33m.[39mtoBe([32m'Groceries'[39m)[33m;[39m
+     [90m    |[39m                           [31m[1m^[22m[39m
+     [90m 45 |[39m
+     [90m 46 |[39m     [90m// Verify dashboard recalculation[39m
+     [90m 47 |[39m     expect(getTextContent(getByLabelText([32m'total-balance'[39m)))[33m.[39mtoBe([32m'-$45.00'[39m)[33m;[39m[0m
+
+      at Object.getByLabelText (__tests__/e2e/tier3_combinations.test.tsx:44:27)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:17)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:17:9)
+
+  ● Tier 3: Cross-Feature Combinations › TC-3.4: Parallel State Submissions
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 2
+    Received: 1
+
+    [0m [90m 108 |[39m
+     [90m 109 |[39m     [90m// Wait and verify both items are preserved in state and rendered[39m
+    [31m[1m>[22m[39m[90m 110 |[39m     [36mawait[39m waitFor(() [33m=>[39m {
+     [90m     |[39m                  [31m[1m^[22m[39m
+     [90m 111 |[39m       [36mconst[39m items [33m=[39m getAllByLabelText([32m'transaction-item-desc'[39m)[33m;[39m
+     [90m 112 |[39m       expect(items[33m.[39mlength)[33m.[39mtoBe([35m2[39m)[33m;[39m
+     [90m 113 |[39m       expect(getTextContent(items[[35m0[39m]))[33m.[39mtoBe([32m'Rapid 2'[39m)[33m;[39m[0m
+
+      at Object.<anonymous> (__tests__/e2e/tier3_combinations.test.tsx:110:18)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:17)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:17:9)
+      at node_modules/@babel/runtime/helpers/asyncToGenerator.js:22:7
+      at Object.<anonymous> (node_modules/@babel/runtime/helpers/asyncToGenerator.js:14:12)
+
+----------|---------|----------|---------|---------|-------------------
+File      | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+----------|---------|----------|---------|---------|-------------------
+All files |   98.85 |    97.72 |     100 |    98.8 |                   
+ App.tsx  |   98.85 |    97.72 |     100 |    98.8 | 48                
+----------|---------|----------|---------|---------|-------------------
+Test Suites: 2 failed, 3 passed, 5 total
+Tests:       5 failed, 22 passed, 27 total
+Snapshots:   0 total
+Time:        2.959 s, estimated 6 s
+Ran all test suites.
