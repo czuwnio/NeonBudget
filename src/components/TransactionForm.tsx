@@ -167,8 +167,8 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
           ))}
         </View>
 
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: theme.spacing.md, backgroundColor: 'rgba(255,255,255,0.05)', padding: 12, borderRadius: theme.borderRadius.md }}>
-          <Text style={{ color: theme.colors.textSecondary, fontFamily: theme.typography.fontFamily }}>Podziel rachunek (osoby):</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: theme.spacing.md, backgroundColor: 'rgba(255,255,255,0.05)', padding: 12, borderRadius: theme.borderRadius.md, gap: 8 }}>
+          <Text style={{ color: theme.colors.textSecondary, fontFamily: theme.typography.fontFamily, flex: 1, minWidth: 120 }}>Podziel rachunek (osoby):</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
             <TouchableOpacity onPress={() => setSplitCount(Math.max(1, splitCount - 1))} style={styles.quickAmtBtn}><Text style={styles.quickAmtText}>-</Text></TouchableOpacity>
             <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>{splitCount}</Text>
