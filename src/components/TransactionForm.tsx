@@ -29,7 +29,6 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [category, setCategory] = useState(expenseCategories[0] || 'Jedzenie');
   const [customDate, setCustomDate] = useState(new Date().toISOString().split('T')[0]);
-  const [customDate, setCustomDate] = useState(new Date().toISOString().split('T')[0]);
 
   const currentCategories = type === 'income' ? incomeCategories : expenseCategories;
 
