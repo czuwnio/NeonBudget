@@ -8,20 +8,21 @@ import * as LocalAuthentication from 'expo-local-authentication';
 interface Props {
   onUnlock: () => void;
   savedPin: string;
+  biometricsEnabled?: boolean;
 }
 
-export const AppLock: React.FC<Props> = ({ onUnlock, savedPin }) => {
+export const AppLock: React.FC<Props> = ({ onUnlock, savedPin, biometricsEnabled = true }) => {
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
   const [biometricSupported, setBiometricSupported] = useState(false);
 
   useEffect(() => {
-    if (Platform.OS === 'web') return;
+    if (Platform.OS === 'web' || !biometricsEnabled) return;
     handleBiometricAuth(true); // Cicha próba przy starcie (silent = true)
-  }, []);
+  }, [biometricsEnabled]);
 
   const handleBiometricAuth = async (silent = false) => {
-    if (Platform.OS === 'web') return;
+    if (Platform.OS === 'web' || !biometricsEnabled) return;
     try {
       const compatible = await LocalAuthentication.hasHardwareAsync();
       const enrolled = await LocalAuthentication.isEnrolledAsync();
@@ -96,7 +97,7 @@ export const AppLock: React.FC<Props> = ({ onUnlock, savedPin }) => {
           ))}
           
           <TouchableOpacity style={styles.key} onPress={() => handleBiometricAuth(false)}>
-            {Platform.OS !== 'web' ? <Fingerprint size={28} color={theme.colors.neonPurpleLight} /> : <Text style={styles.keyText}></Text>}
+            {Platform.OS !== 'web' && biometricsEnabled ? <Fingerprint size={28} color={theme.colors.neonPurpleLight} /> : <Text style={styles.keyText}></Text>}
           </TouchableOpacity>
           
           <TouchableOpacity style={styles.key} onPress={() => handlePress('0')}>

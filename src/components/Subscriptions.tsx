@@ -38,7 +38,7 @@ export const Subscriptions: React.FC<Props> = ({ subs, onAddSub, onDeleteSub, on
       <View style={styles.header}>
         <View style={styles.headerTitle}>
           <Repeat size={20} color={theme.colors.neonPurpleLight} />
-          <Text style={styles.title}>Subskrypcje i Stałe</Text>
+          <Text style={styles.title}>Subskrypcje i stałe wydatki</Text>
         </View>
         <TouchableOpacity onPress={() => setIsAdding(!isAdding)}>
           <Plus size={24} color={theme.colors.textPrimary} />

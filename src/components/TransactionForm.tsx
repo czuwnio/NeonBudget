@@ -12,6 +12,7 @@ interface TransactionFormProps {
   incomeCategories: string[];
   transactionToEdit: any;
   onCancelEdit: () => void;
+  customTags: string[];
 }
 
 export const TransactionForm: React.FC<TransactionFormProps> = ({ 
@@ -20,14 +21,15 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   expenseCategories,
   incomeCategories,
   transactionToEdit,
-  onCancelEdit
+  onCancelEdit,
+  customTags
 }) => {
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [category, setCategory] = useState(expenseCategories[0] || 'Jedzenie');
   const [customDate, setCustomDate] = useState(new Date().toISOString().split('T')[0]);
-  const [splitCount, setSplitCount] = useState<number>(1);
+  const [customDate, setCustomDate] = useState(new Date().toISOString().split('T')[0]);
 
   const currentCategories = type === 'income' ? incomeCategories : expenseCategories;
 
@@ -77,21 +79,11 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   };
 
   const submit = () => {
-    // Auto-calculate split
-    let finalAmount = amount;
-    if (splitCount > 1) {
-      const parsed = parseFloat(amount.replace(',', '.'));
-      if (!isNaN(parsed)) {
-        finalAmount = (parsed / splitCount).toFixed(2);
-      }
-    }
-
-    onSubmitTransaction(finalAmount, description, type, category, customDate);
+    onSubmitTransaction(amount, description, type, category, customDate);
     if (!validationError) {
       if (!transactionToEdit) {
         setAmount('');
         setDescription('');
-        setSplitCount(1);
       }
     }
   };
@@ -124,43 +116,22 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
           </TouchableOpacity>
         </View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Kwota"
-          placeholderTextColor={theme.colors.textSecondary}
-          value={amount}
-          onChangeText={setAmount}
-          onBlur={() => {
-            try {
-              let sanitized = amount.replace(',', '.').replace(/[^0-9\+\-\*\/\.\s]/g, '');
-              if (sanitized.match(/[\+\-\*\/]/)) {
-                const result = new Function('return ' + sanitized)();
-                if (!isNaN(result)) setAmount(result.toFixed(2));
-              }
-            } catch(e) {}
-          }}
-        />
-
-        <View style={styles.quickAmounts}>
-          {[10, 50, 100].map(val => (
-            <TouchableOpacity 
-              key={val} 
-              style={styles.quickAmtBtn}
-              onPress={() => setAmount(prev => (parseFloat(prev || '0') + val).toString())}
-            >
-              <Text style={styles.quickAmtText}>+{val}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: theme.spacing.md, backgroundColor: 'rgba(255,255,255,0.05)', padding: 12, borderRadius: theme.borderRadius.md, gap: 8 }}>
-          <Text style={{ color: theme.colors.textSecondary, fontFamily: theme.typography.fontFamily, flex: 1, minWidth: 120 }}>Podziel rachunek (osoby):</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-            <TouchableOpacity onPress={() => setSplitCount(Math.max(1, splitCount - 1))} style={styles.quickAmtBtn}><Text style={styles.quickAmtText}>-</Text></TouchableOpacity>
-            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16, textAlign: 'center' }}>{splitCount}</Text>
-            <TouchableOpacity onPress={() => setSplitCount(splitCount + 1)} style={styles.quickAmtBtn}><Text style={styles.quickAmtText}>+</Text></TouchableOpacity>
-          </View>
-        </View>
+          <TextInput
+            style={styles.input}
+            placeholder="Kwota"
+            placeholderTextColor={theme.colors.textSecondary}
+            value={amount}
+            onChangeText={setAmount}
+            onBlur={() => {
+              try {
+                let sanitized = amount.replace(',', '.').replace(/[^0-9\+\-\*\/\.\s]/g, '');
+                if (sanitized.match(/[\+\-\*\/]/)) {
+                  const result = new Function('return ' + sanitized)();
+                  if (!isNaN(result)) setAmount(result.toFixed(2));
+                }
+              } catch(e) {}
+            }}
+          />
 
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: theme.spacing.xs }}>
           <TextInput
@@ -175,8 +146,9 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
           </TouchableOpacity>
         </View>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: theme.spacing.md }}>
-          {['zakupy', 'weekend', 'paliwo', 'rachunki', 'wyjazd', 'jedzenie'].map((tag) => (
+        {customTags.length > 0 && (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: theme.spacing.md }}>
+            {customTags.map((tag) => (
             <TouchableOpacity 
               key={tag} 
               style={[styles.quickAmtBtn, { marginRight: 8, paddingHorizontal: 12 }]}
@@ -185,7 +157,8 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
               <Text style={styles.quickAmtText}>{tag}</Text>
             </TouchableOpacity>
           ))}
-        </ScrollView>
+          </ScrollView>
+        )}
 
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: theme.spacing.md }}>
           <TextInput

@@ -82,8 +82,8 @@ function MainApp() {
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showLevelUp, setShowLevelUp] = useState(false);
-  const [isGameVisible, setGameVisible] = useState(false);
-  const [gameCoins, setGameCoins] = useState(0);
+  const [customTags, setCustomTags] = useState<string[]>(['zakupy', 'weekend', 'paliwo', 'rachunki', 'wyjazd', 'jedzenie']);
+  const [biometricsEnabled, setBiometricsEnabled] = useState<boolean>(true);
   const prevLevelRef = useRef(1);
 
   const now = new Date();
@@ -141,6 +141,17 @@ function MainApp() {
         } else {
           setIsAppLocked(false);
         }
+
+        const storedTags = await AsyncStorage.getItem('neon-budget-custom-tags');
+        if (storedTags) {
+          const parsed = JSON.parse(storedTags);
+          if (Array.isArray(parsed) && parsed.length > 0) setCustomTags(parsed);
+        }
+
+        const storedBiometrics = await AsyncStorage.getItem('neon-budget-biometrics');
+        if (storedBiometrics !== null) {
+          setBiometricsEnabled(storedBiometrics === 'true');
+        }
       } catch (e) {} finally {
         setIsAppReady(true);
       }
@@ -193,6 +204,20 @@ function MainApp() {
       } else {
         await AsyncStorage.removeItem('neon-budget-pin');
       }
+    });
+  };
+
+  const handleUpdateCustomTags = (tags: string[]) => {
+    queueRef.current = queueRef.current.then(async () => {
+      setCustomTags(tags);
+      await AsyncStorage.setItem('neon-budget-custom-tags', JSON.stringify(tags));
+    });
+  };
+
+  const handleUpdateBiometrics = (enabled: boolean) => {
+    queueRef.current = queueRef.current.then(async () => {
+      setBiometricsEnabled(enabled);
+      await AsyncStorage.setItem('neon-budget-biometrics', String(enabled));
     });
   };
 
@@ -587,7 +612,7 @@ function MainApp() {
             </View>
           )}
 
-          <AppLock onUnlock={() => setIsAppLocked(false)} savedPin={savedPin} />
+          <AppLock onUnlock={() => setIsAppLocked(false)} savedPin={savedPin} biometricsEnabled={biometricsEnabled} />
         </LinearGradient>
       </SafeAreaProvider>
     );
@@ -687,6 +712,11 @@ function MainApp() {
                     <TransactionForm
                       onSubmitTransaction={handleSubmitTransaction}
                       transactionToEdit={allTransactions.find(t => t.id === editingTransactionId)}
+                      validationError={validationError}
+                      expenseCategories={expenseCategories}
+                      incomeCategories={incomeCategories}
+                      onCancelEdit={handleCancelEdit}
+                      customTags={customTags}
                     />
                   )}
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 }}>
@@ -726,6 +756,7 @@ function MainApp() {
               incomeCategories={incomeCategories}
               transactionToEdit={allTransactions.find(t => t.id === editingTransactionId)}
               onCancelEdit={handleCancelEdit}
+              customTags={customTags}
             />
 
             <View style={styles.searchContainer}>
@@ -777,8 +808,11 @@ function MainApp() {
                 onImportData={handleImportData}
                 savedPin={savedPin}
                 onUpdatePin={handleUpdatePin}
-                onOpenGame={() => { setSettingsVisible(false); setGameVisible(true); }}
                 onWipeData={handleClearAll}
+                customTags={customTags}
+                onUpdateCustomTags={handleUpdateCustomTags}
+                biometricsEnabled={biometricsEnabled}
+                onUpdateBiometrics={handleUpdateBiometrics}
               />
             )}
 

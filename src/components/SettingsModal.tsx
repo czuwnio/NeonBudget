@@ -17,8 +17,11 @@ interface SettingsModalProps {
   onImportData: (data: Transaction[]) => void;
   savedPin: string | null;
   onUpdatePin: (pin: string | null) => void;
-  onOpenGame?: () => void;
   onWipeData?: () => void;
+  customTags: string[];
+  onUpdateCustomTags: (tags: string[]) => void;
+  biometricsEnabled: boolean;
+  onUpdateBiometrics: (enabled: boolean) => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -33,14 +36,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onImportData,
   savedPin,
   onUpdatePin,
-  onOpenGame,
   onWipeData,
+  customTags,
+  onUpdateCustomTags,
+  biometricsEnabled,
+  onUpdateBiometrics,
 }) => {
   const [newExpenseCat, setNewExpenseCat] = useState('');
   const [newIncomeCat, setNewIncomeCat] = useState('');
   const [localLimit, setLocalLimit] = useState(monthlyLimit ? monthlyLimit.toString() : '');
   const [backupCode, setBackupCode] = useState('');
   const [newPin, setNewPin] = useState('');
+  const [newCustomTag, setNewCustomTag] = useState('');
 
   React.useEffect(() => {
     if (visible) {
@@ -70,6 +77,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     } else {
       onUpdateCategories('income', incomeCategories.filter(c => c !== catToRemove));
     }
+  };
+
+  const handleAddCustomTag = () => {
+    const trimmed = newCustomTag.trim();
+    if (trimmed && !customTags.includes(trimmed)) {
+      onUpdateCustomTags([...customTags, trimmed]);
+      setNewCustomTag('');
+    }
+  };
+
+  const handleRemoveCustomTag = (tagToRemove: string) => {
+    onUpdateCustomTags(customTags.filter(t => t !== tagToRemove));
   };
 
   const handleSave = () => {
@@ -173,6 +192,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <Text style={styles.backupBtnText}>{savedPin ? 'Zaktualizuj PIN' : 'Ustaw PIN'}</Text>
               </TouchableOpacity>
               {savedPin && <Text style={styles.pinActiveText}>Status: PIN jest aktywny</Text>}
+              
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, backgroundColor: 'rgba(255,255,255,0.05)', padding: 12, borderRadius: 8 }}>
+                <Text style={{ color: '#fff' }}>Logowanie biometryczne</Text>
+                <TouchableOpacity onPress={() => onUpdateBiometrics(!biometricsEnabled)} style={{ padding: 8, backgroundColor: biometricsEnabled ? theme.colors.neonGreen : 'rgba(255,255,255,0.1)', borderRadius: 20, width: 50, alignItems: biometricsEnabled ? 'flex-end' : 'flex-start' }}>
+                  <View style={{ width: 16, height: 16, borderRadius: 8, backgroundColor: '#fff' }} />
+                </TouchableOpacity>
+              </View>
             </View>
 
             <View style={styles.section}>
@@ -249,6 +275,34 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </View>
 
             <View style={styles.section}>
+              <Text style={styles.sectionTitle}>WŁASNE OPISY TRANSAKCJI (TAGI)</Text>
+              <View style={styles.catList}>
+                {customTags.map(tag => (
+                  <View key={tag} style={styles.catItem}>
+                    <Text style={styles.catText}>{tag}</Text>
+                    <TouchableOpacity onPress={() => handleRemoveCustomTag(tag)}>
+                      <Trash2 size={16} color={theme.colors.danger} />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+
+              <View style={styles.addRow}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Nowy opis (np. paliwo, zakupy)"
+                  placeholderTextColor={theme.colors.textSecondary}
+                  value={newCustomTag}
+                  onChangeText={setNewCustomTag}
+                  onSubmitEditing={handleAddCustomTag}
+                />
+                <TouchableOpacity style={styles.addBtnIcon} onPress={handleAddCustomTag}>
+                  <Plus size={20} color="#fff" />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.section}>
               <Text style={styles.sectionTitle}>ZARZĄDZANIE DANYMI</Text>
               
               <TouchableOpacity style={styles.backupBtn} onPress={generateBackup}>
@@ -286,14 +340,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <Text style={styles.helperText}>Bezpowrotnie usuwa wszystkie transakcje z pamięci urządzenia.</Text>
             </View>
 
-            {onOpenGame && (
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>SEKRETY</Text>
-                <TouchableOpacity style={[styles.backupBtn, { backgroundColor: 'rgba(57, 255, 20, 0.15)', borderColor: 'rgba(57, 255, 20, 0.3)', borderWidth: 1 }]} onPress={onOpenGame}>
-                  <Text style={[styles.backupBtnText, { color: theme.colors.neonGreen }]}>🎮 Uruchom Coin Clicker</Text>
-                </TouchableOpacity>
-              </View>
-            )}
+            </View>
 
             <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
               <Text style={styles.saveBtnText}>Zapisz ustawienia</Text>

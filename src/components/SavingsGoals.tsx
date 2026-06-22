@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Modal } from 'react-native';
 import { Target, Plus, Trash2 } from 'lucide-react-native';
 import { theme } from '../theme/theme';
 
@@ -23,6 +23,9 @@ export const SavingsGoals: React.FC<Props> = ({ goals, onAddGoal, onAddFunds, on
   const [newName, setNewName] = useState('');
   const [newTarget, setNewTarget] = useState('');
 
+  const [fundingGoalId, setFundingGoalId] = useState<string | null>(null);
+  const [fundAmount, setFundAmount] = useState('');
+
   const handleAdd = () => {
     if (!newName.trim() || !newTarget) return;
     const t = parseFloat(newTarget.replace(',', '.'));
@@ -34,18 +37,18 @@ export const SavingsGoals: React.FC<Props> = ({ goals, onAddGoal, onAddFunds, on
   };
 
   const handleFund = (id: string) => {
-    if (Platform.OS === 'web') {
-      const val = window.prompt('Ile chcesz wpłacić do tej skarbonki?');
-      if (!val) return;
-      const parsed = parseFloat(val.replace(',', '.'));
-      if (isNaN(parsed) || parsed <= 0) return;
-      onAddFunds(id, parsed);
-    } else {
-      // W wersji mobilnej idealnie by było zrobić custom modal, ale dla uproszczenia
-      // na razie zostawiamy (w web to działa idealnie z promp). 
-      // Jako że skupiamy się na Vercel (web), używamy prompt.
-      // Ewentualnie mobilne aplikacje można też obsługiwać osobnym stanem.
+    setFundingGoalId(id);
+    setFundAmount('');
+  };
+
+  const submitFund = () => {
+    if (!fundingGoalId) return;
+    const parsed = parseFloat(fundAmount.replace(',', '.'));
+    if (!isNaN(parsed) && parsed > 0) {
+      onAddFunds(fundingGoalId, parsed);
     }
+    setFundingGoalId(null);
+    setFundAmount('');
   };
 
   return (
@@ -112,6 +115,32 @@ export const SavingsGoals: React.FC<Props> = ({ goals, onAddGoal, onAddFunds, on
           </View>
         );
       })}
+
+      <Modal visible={!!fundingGoalId} transparent animationType="fade" onRequestClose={() => setFundingGoalId(null)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ backgroundColor: theme.colors.surfaceDark, width: '90%', maxWidth: 400, padding: 20, borderRadius: theme.borderRadius.lg, borderWidth: 1, borderColor: theme.colors.glassBorder }}>
+            <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>Wpłać do skarbonki</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Kwota wpłaty (PLN)"
+              placeholderTextColor={theme.colors.textSecondary}
+              value={fundAmount}
+              onChangeText={setFundAmount}
+              keyboardType="numeric"
+              autoFocus
+            />
+            <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
+              <TouchableOpacity style={{ flex: 1, padding: 12, borderRadius: 8, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.1)' }} onPress={() => setFundingGoalId(null)}>
+                <Text style={{ color: '#fff' }}>Anuluj</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1, padding: 12, borderRadius: 8, alignItems: 'center', backgroundColor: theme.colors.neonGreen }} onPress={submitFund}>
+                <Text style={{ color: '#000', fontWeight: 'bold' }}>Wpłać</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
     </View>
   );
 };
