@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, ScrollView, Alert, LayoutAnimation, Platform, U
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Wallet, Download, Settings, Search, TrendingUp, Flame } from 'lucide-react-native';
+import { Wallet, Download, Settings, Search, TrendingUp, Flame, Star } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { theme } from './src/theme/theme';
@@ -457,6 +457,9 @@ export default function App() {
     return currentStreak;
   }, [allTransactions]);
 
+  const userXP = useMemo(() => allTransactions.length * 15, [allTransactions]);
+  const userLevel = Math.floor(userXP / 100) + 1;
+
   if (!isAppReady) {
     return <View style={styles.container} />;
   }
@@ -483,10 +486,14 @@ export default function App() {
               <Wallet size={28} color={theme.colors.neonPurpleLight} />
               <Text style={styles.title}>NeonBudget</Text>
               <View style={styles.headerRight}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 8, backgroundColor: 'rgba(157, 78, 221, 0.15)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(157, 78, 221, 0.3)' }}>
+                  <Star size={14} color={theme.colors.neonPurpleLight} />
+                  <Text style={{ color: theme.colors.neonPurpleLight, fontWeight: 'bold', marginLeft: 4, fontFamily: theme.typography.fontFamily, fontSize: 12 }}>Lvl {userLevel}</Text>
+                </View>
                 {streakDays > 0 && (
                   <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 12, backgroundColor: 'rgba(255, 159, 28, 0.15)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255, 159, 28, 0.3)' }}>
-                    <Flame size={16} color="#FF9F1C" />
-                    <Text style={{ color: '#FF9F1C', fontWeight: 'bold', marginLeft: 4, fontFamily: theme.typography.fontFamily }}>{streakDays}</Text>
+                    <Flame size={14} color="#FF9F1C" />
+                    <Text style={{ color: '#FF9F1C', fontWeight: 'bold', marginLeft: 4, fontFamily: theme.typography.fontFamily, fontSize: 12 }}>{streakDays}</Text>
                   </View>
                 )}
                 <TouchableOpacity onPress={() => setInsightsVisible(true)} style={styles.headerIcon}>

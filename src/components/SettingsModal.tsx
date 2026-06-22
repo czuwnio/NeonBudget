@@ -97,6 +97,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   };
 
+  const downloadCSV = () => {
+    if (Platform.OS === 'web') {
+      const header = 'ID,Data,Opis,Kategoria,Typ,Kwota\n';
+      const rows = allTransactions.map(t => `${t.id},${t.date.split('T')[0]},"${t.description.replace(/"/g, '""')}",${t.category},${t.type},${t.amount}`).join('\n');
+      const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(header + rows);
+      const link = document.createElement("a");
+      link.setAttribute("href", csvContent);
+      link.setAttribute("download", "neonbudget_export.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      alert('Funkcja eksportu do CSV jest dostępna w wersji przeglądarkowej.');
+    }
+  };
+
   const handleSavePin = () => {
     if (newPin.length === 4) {
       onUpdatePin(newPin);
@@ -236,6 +252,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <Text style={styles.helperText}>Skopiuj wygenerowany kod i zapisz go w bezpiecznym miejscu.</Text>
             </View>
 
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>EKSPORT DANYCH</Text>
+              <TouchableOpacity style={[styles.backupBtn, { backgroundColor: 'rgba(56, 176, 0, 0.15)', borderColor: 'rgba(56, 176, 0, 0.3)', borderWidth: 1 }]} onPress={downloadCSV}>
+                <Text style={[styles.backupBtnText, { color: theme.colors.neonGreen }]}>Pobierz arkusz CSV</Text>
+              </TouchableOpacity>
+              <Text style={styles.helperText}>Wyeksportuj swoje dane, by móc otworzyć je w Excelu.</Text>
+            </View>
+
             <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
               <Text style={styles.saveBtnText}>Zapisz ustawienia</Text>
             </TouchableOpacity>
@@ -354,7 +378,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   pinActiveText: {
-    color: theme.colors.success,
+    color: theme.colors.neonGreen,
     fontSize: 12,
     marginTop: 8,
     fontFamily: theme.typography.fontFamily,
