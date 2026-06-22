@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, ScrollView, Alert, LayoutAnimation, Platform, U
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Wallet, Download, Settings, Search } from 'lucide-react-native';
+import { Wallet, Download, Settings, Search, TrendingUp } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { theme } from './src/theme/theme';
@@ -15,6 +15,7 @@ import { CategoryChart } from './src/components/CategoryChart';
 import { TransactionList } from './src/components/TransactionList';
 import { MonthSelector } from './src/components/MonthSelector';
 import { SettingsModal } from './src/components/SettingsModal';
+import { InsightsModal } from './src/components/InsightsModal';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -38,6 +39,7 @@ export default function App() {
   const [incomeCategories, setIncomeCategories] = useState(['Wypłata', 'Inne']);
   const [monthlyLimit, setMonthlyLimit] = useState<number>(0);
   const [isSettingsVisible, setSettingsVisible] = useState(false);
+  const [isInsightsVisible, setInsightsVisible] = useState(false);
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
 
   const now = new Date();
@@ -138,7 +140,6 @@ export default function App() {
           };
           updatedTransactions = [newTx, ...latestList];
           
-          // Switch to current month when adding new
           const now = new Date();
           const nowKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
           setSelectedMonthKey(nowKey);
@@ -219,7 +220,6 @@ export default function App() {
 
     const headers = 'ID,Data,Typ,Kategoria,Kwota,Opis\n';
     const rows = allTransactions.map(t => {
-      // Escape commas and quotes in description
       const safeDesc = `"${t.description.replace(/"/g, '""')}"`;
       return `${t.id},${t.date},${t.type},${t.category},${t.amount},${safeDesc}`;
     }).join('\n');
@@ -304,9 +304,14 @@ export default function App() {
             <View style={styles.header}>
               <Wallet size={28} color={theme.colors.neonPurpleLight} />
               <Text style={styles.title}>NeonBudget</Text>
-              <TouchableOpacity onPress={() => setSettingsVisible(true)} style={styles.settingsBtn}>
-                <Settings size={24} color={theme.colors.textSecondary} />
-              </TouchableOpacity>
+              <View style={styles.headerRight}>
+                <TouchableOpacity onPress={() => setInsightsVisible(true)} style={styles.headerIcon}>
+                  <TrendingUp size={24} color={theme.colors.textPrimary} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setSettingsVisible(true)} style={styles.headerIcon}>
+                  <Settings size={24} color={theme.colors.textPrimary} />
+                </TouchableOpacity>
+              </View>
             </View>
             <Text style={styles.subtitle}>Ekskluzywne zarządzanie finansami</Text>
 
@@ -377,6 +382,13 @@ export default function App() {
               onImportData={handleImportData}
             />
 
+            <InsightsModal
+              visible={isInsightsVisible}
+              onClose={() => setInsightsVisible(false)}
+              transactions={currentMonthTransactions}
+              selectedMonthKey={selectedMonthKey}
+            />
+
           </ScrollView>
         </SafeAreaView>
       </LinearGradient>
@@ -403,16 +415,26 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     gap: 12,
   },
+  headerTitle: {
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: 'bold',
+    fontSize: 24,
+    color: theme.colors.textPrimary,
+    letterSpacing: 0.5,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  headerIcon: {
+    padding: 4,
+  },
   title: {
     fontFamily: theme.typography.fontFamily, fontWeight: 'bold',
     fontSize: 28,
     color: theme.colors.textPrimary,
     letterSpacing: -0.5,
-  },
-  settingsBtn: {
-    position: 'absolute',
-    right: 0,
-    padding: 4,
   },
   subtitle: {
     fontFamily: theme.typography.fontFamily, fontWeight: '500',
