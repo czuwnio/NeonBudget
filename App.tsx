@@ -48,11 +48,13 @@ export default function App() {
   const [isSettingsVisible, setSettingsVisible] = useState(false);
   const [isInsightsVisible, setInsightsVisible] = useState(false);
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showLevelUp, setShowLevelUp] = useState(false);
+  const prevLevelRef = useRef(1);
 
   const now = new Date();
   const initialMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   const [selectedMonthKey, setSelectedMonthKey] = useState(initialMonthKey);
-  const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'expense' | 'income'>('all');
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [savedPin, setSavedPin] = useState<string | null>(null);
@@ -490,6 +492,14 @@ export default function App() {
   const userXP = useMemo(() => allTransactions.length * 15, [allTransactions]);
   const userLevel = Math.floor(userXP / 100) + 1;
 
+  useEffect(() => {
+    if (isAppReady && userLevel > prevLevelRef.current && prevLevelRef.current > 0) {
+      setShowLevelUp(true);
+      setTimeout(() => setShowLevelUp(false), 4000);
+    }
+    prevLevelRef.current = userLevel;
+  }, [userLevel, isAppReady]);
+
   const MOCK_QUOTES = [
     "Oszczędność to wielki dochód. – Seneka",
     "Nie oszczędzaj resztek, wydawaj to co zostanie po oszczędzeniu. – Buffett",
@@ -512,6 +522,13 @@ export default function App() {
               <View style={{ position: 'absolute', bottom: -50, right: -50, width: 300, height: 300, borderRadius: 150, backgroundColor: theme.colors.neonGreen, opacity: 0.1, filter: 'blur(80px)', pointerEvents: 'none' }} />
             </>
           )}
+
+          {showLevelUp && (
+            <View style={{ position: 'absolute', top: 50, left: 20, right: 20, backgroundColor: theme.colors.neonPurple, padding: 16, borderRadius: theme.borderRadius.md, zIndex: 9999, alignItems: 'center', shadowColor: theme.colors.neonPurple, shadowOpacity: 0.8, shadowRadius: 15 }}>
+              <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 18, fontFamily: theme.typography.fontFamily }}>AWANS! Osiągnąłeś Poziom {userLevel}! 🎉</Text>
+            </View>
+          )}
+
           <AppLock onUnlock={() => setIsAppLocked(false)} savedPin={savedPin} />
         </LinearGradient>
       </SafeAreaProvider>
