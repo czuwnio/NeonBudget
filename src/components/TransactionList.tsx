@@ -7,6 +7,7 @@ import { Transaction } from '../types';
 
 interface TransactionListProps {
   transactions: Transaction[];
+  searchQuery?: string;
   onDeleteTransaction: (id: string) => void;
   onEditTransaction: (t: Transaction) => void;
   onTagClick?: (tag: string) => void;
@@ -46,7 +47,7 @@ const getCategoryIcon = (category: string, type: string) => {
   }
 };
 
-export const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDeleteTransaction, onEditTransaction, onTagClick }) => {
+export const TransactionList: React.FC<TransactionListProps> = ({ transactions, searchQuery = '', onDeleteTransaction, onEditTransaction, onTagClick }) => {
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'highest' | 'lowest'>('newest');
 
   const sortedTransactions = [...transactions].sort((a, b) => {
@@ -60,7 +61,9 @@ export const TransactionList: React.FC<TransactionListProps> = ({ transactions, 
   });
 
   const renderDescriptionWithTags = (description: string) => {
+    // Podział na słowa zaczynające się od # oraz zwykły tekst
     const parts = description.split(/(#[a-zA-Z0-9_żółćęśąźńŻÓŁĆĘŚĄŹŃ]+)/g);
+    
     return (
       <Text style={styles.txDesc} numberOfLines={1}>
         {parts.map((part, index) => {
@@ -73,6 +76,19 @@ export const TransactionList: React.FC<TransactionListProps> = ({ transactions, 
               >
                 {part}
               </Text>
+            );
+          }
+          
+          if (searchQuery && part.toLowerCase().includes(searchQuery.toLowerCase())) {
+            // Split part by search query to highlight the match
+            const regex = new RegExp(`(${searchQuery})`, 'gi');
+            const subParts = part.split(regex);
+            return subParts.map((sp, spIndex) => 
+              sp.toLowerCase() === searchQuery.toLowerCase() ? (
+                <Text key={`${index}-${spIndex}`} style={{ color: theme.colors.neonGreen, backgroundColor: 'rgba(0, 245, 212, 0.2)' }}>
+                  {sp}
+                </Text>
+              ) : sp
             );
           }
           return part;

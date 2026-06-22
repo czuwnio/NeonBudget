@@ -479,6 +479,18 @@ export default function App() {
               prevTotalExpense={prevTotalExpense}
             />
 
+            <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
+              <TouchableOpacity style={styles.quickActionBtn} onPress={() => handleSubmitTransaction('50', 'Spożywcze', 'expense', 'Jedzenie')}>
+                <Text style={styles.quickActionText}>-50 Spożywcze</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.quickActionBtn} onPress={() => handleSubmitTransaction('150', 'Paliwo', 'expense', 'Transport')}>
+                <Text style={styles.quickActionText}>-150 Paliwo</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.quickActionBtn} onPress={() => handleSubmitTransaction('15', 'Kawa', 'expense', 'Inne')}>
+                <Text style={styles.quickActionText}>-15 Kawa</Text>
+              </TouchableOpacity>
+            </View>
+
             <CategoryChart 
               transactions={displayedTransactions} 
               totalExpense={displayedTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)} 
@@ -539,6 +551,7 @@ export default function App() {
 
             <TransactionList 
               transactions={displayedTransactions} 
+              searchQuery={searchQuery}
               onDeleteTransaction={handleDeleteTransaction} 
               onEditTransaction={handleEditTransaction}
               onTagClick={(tag) => {
@@ -598,9 +611,25 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    paddingHorizontal: 24,
-    paddingTop: 10,
-    paddingBottom: 40,
+    padding: theme.spacing.lg,
+    paddingBottom: 100,
+  },
+  quickActionBtn: {
+    flex: 1,
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quickActionText: {
+    fontFamily: theme.typography.fontFamily,
+    color: theme.colors.textSecondary,
+    fontSize: 11,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
   },
   header: {
     flexDirection: 'row',
