@@ -9,6 +9,7 @@ interface TransactionListProps {
   transactions: Transaction[];
   onDeleteTransaction: (id: string) => void;
   onEditTransaction: (t: Transaction) => void;
+  onTagClick?: (tag: string) => void;
 }
 
 const formatIncome = (val: number) => {
@@ -45,7 +46,7 @@ const getCategoryIcon = (category: string, type: string) => {
   }
 };
 
-export const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDeleteTransaction, onEditTransaction }) => {
+export const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDeleteTransaction, onEditTransaction, onTagClick }) => {
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'highest' | 'lowest'>('newest');
 
   const sortedTransactions = [...transactions].sort((a, b) => {
@@ -57,6 +58,28 @@ export const TransactionList: React.FC<TransactionListProps> = ({ transactions, 
       default: return 0;
     }
   });
+
+  const renderDescriptionWithTags = (description: string) => {
+    const parts = description.split(/(#[a-zA-Z0-9_żółćęśąźńŻÓŁĆĘŚĄŹŃ]+)/g);
+    return (
+      <Text style={styles.txDesc} numberOfLines={1}>
+        {parts.map((part, index) => {
+          if (part.startsWith('#')) {
+            return (
+              <Text 
+                key={index} 
+                style={styles.tag} 
+                onPress={() => onTagClick && onTagClick(part)}
+              >
+                {part}
+              </Text>
+            );
+          }
+          return part;
+        })}
+      </Text>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -87,9 +110,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({ transactions, 
                 </View>
 
                 <View style={styles.textContainer}>
-                  <Text style={styles.txDesc} numberOfLines={1}>
-                    {t.description}
-                  </Text>
+                  {renderDescriptionWithTags(t.description)}
                   <Text style={styles.txCategory}>
                     {t.category} • {formatDate(t.date)}
                   </Text>
@@ -201,6 +222,10 @@ const styles = StyleSheet.create({
     color: theme.colors.textPrimary,
     fontSize: 15,
     marginBottom: 4,
+  },
+  tag: {
+    color: theme.colors.neonBlue,
+    backgroundColor: 'rgba(0, 240, 255, 0.1)',
   },
   txCategory: {
     fontFamily: theme.typography.fontFamily, fontWeight: '500',

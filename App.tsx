@@ -533,6 +533,11 @@ export default function App() {
               transactions={displayedTransactions} 
               onDeleteTransaction={handleDeleteTransaction} 
               onEditTransaction={handleEditTransaction}
+              onTagClick={(tag) => {
+                if (!searchQuery.includes(tag)) {
+                  setSearchQuery(searchQuery ? `${searchQuery} ${tag}`.trim() : tag);
+                }
+              }}
             />
 
             <View style={styles.actionZone}>
