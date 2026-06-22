@@ -15,6 +15,8 @@ interface SettingsModalProps {
   onUpdateLimit: (limit: number) => void;
   allTransactions: Transaction[];
   onImportData: (data: Transaction[]) => void;
+  savedPin: string | null;
+  onUpdatePin: (pin: string | null) => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -27,11 +29,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onUpdateLimit,
   allTransactions,
   onImportData,
+  savedPin,
+  onUpdatePin,
 }) => {
   const [newExpenseCat, setNewExpenseCat] = useState('');
   const [newIncomeCat, setNewIncomeCat] = useState('');
   const [localLimit, setLocalLimit] = useState(monthlyLimit ? monthlyLimit.toString() : '');
   const [backupCode, setBackupCode] = useState('');
+  const [newPin, setNewPin] = useState('');
 
   React.useEffect(() => {
     if (visible) {
@@ -92,6 +97,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   };
 
+  const handleSavePin = () => {
+    if (newPin.length === 4) {
+      onUpdatePin(newPin);
+      setNewPin('');
+      Alert.alert('Sukces', 'Kod PIN został ustawiony.');
+    } else if (newPin === '') {
+      onUpdatePin(null);
+      Alert.alert('Sukces', 'Zabezpieczenie PIN wyłączone.');
+    } else {
+      Alert.alert('Błąd', 'PIN musi składać się z 4 cyfr lub pozostać pusty (wyłączenie).');
+    }
+  };
+
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.overlay}>
@@ -106,6 +124,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </View>
 
           <ScrollView style={styles.scrollArea}>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>ZABEZPIECZENIE PIN</Text>
+              <TextInput
+                style={styles.input}
+                value={newPin}
+                onChangeText={setNewPin}
+                placeholder={savedPin ? "Zmień obecny PIN" : "Wprowadź 4 cyfry"}
+                placeholderTextColor={theme.colors.textSecondary}
+                keyboardType="numeric"
+                maxLength={4}
+                secureTextEntry
+              />
+              <TouchableOpacity style={[styles.backupBtn, { marginTop: 8 }]} onPress={handleSavePin}>
+                <Text style={styles.backupBtnText}>{savedPin ? 'Zaktualizuj PIN' : 'Ustaw PIN'}</Text>
+              </TouchableOpacity>
+              {savedPin && <Text style={styles.pinActiveText}>Status: PIN jest aktywny</Text>}
+            </View>
+
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>MIESIĘCZNY LIMIT WYDATKÓW (PLN)</Text>
               <TextInput
@@ -316,6 +352,12 @@ const styles = StyleSheet.create({
     fontFamily: theme.typography.fontFamily,
     color: theme.colors.textPrimary,
     fontSize: 13,
+  },
+  pinActiveText: {
+    color: theme.colors.success,
+    fontSize: 12,
+    marginTop: 8,
+    fontFamily: theme.typography.fontFamily,
   },
   saveBtn: {
     backgroundColor: theme.colors.neonPurple,

@@ -19,6 +19,7 @@ import { InsightsModal } from './src/components/InsightsModal';
 import { SavingsGoals, SavingsGoal } from './src/components/SavingsGoals';
 import { Subscriptions, Subscription } from './src/components/Subscriptions';
 import { DateStrip } from './src/components/DateStrip';
+import { AppLock } from './src/components/AppLock';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -53,6 +54,9 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'expense' | 'income'>('all');
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [savedPin, setSavedPin] = useState<string | null>(null);
+  const [isAppLocked, setIsAppLocked] = useState<boolean>(true);
+  const [isAppReady, setIsAppReady] = useState(false);
 
   const queueRef = useRef<Promise<void>>(Promise.resolve());
 
@@ -93,7 +97,16 @@ export default function App() {
           const parsed = JSON.parse(storedSubs);
           if (Array.isArray(parsed)) setSubscriptions(parsed);
         }
-      } catch (e) {}
+
+        const storedPin = await AsyncStorage.getItem('neon-budget-pin');
+        if (storedPin) {
+          setSavedPin(storedPin);
+        } else {
+          setIsAppLocked(false);
+        }
+      } catch (e) {} finally {
+        setIsAppReady(true);
+      }
     };
     loadInitialData();
   }, []);
@@ -104,12 +117,46 @@ export default function App() {
       await AsyncStorage.setItem('neon-budget-expense-cats', JSON.stringify(newCats));
     } else {
       setIncomeCategories(newCats);
+      await AsyncStorage.setItem('neon-budget-income-cats', JSON.stringify(newCats));
     }
   };
 
-  const handleUpdateLimit = async (newLimit: number) => {
-    setMonthlyLimit(newLimit);
-    await AsyncStorage.setItem('neon-budget-limit', newLimit.toString());
+  const handleAddCategory = async (type: 'expense' | 'income', cat: string) => {
+    if (type === 'expense') {
+      const updated = [...expenseCategories, cat];
+      await handleUpdateCategories('expense', updated);
+    } else {
+      const updated = [...incomeCategories, cat];
+      await handleUpdateCategories('income', updated);
+    }
+  };
+
+  const handleDeleteCategory = async (type: 'expense' | 'income', cat: string) => {
+    if (type === 'expense') {
+      const updated = expenseCategories.filter(c => c !== cat);
+      await handleUpdateCategories('expense', updated);
+    } else {
+      const updated = incomeCategories.filter(c => c !== cat);
+      await handleUpdateCategories('income', updated);
+    }
+  };
+
+  const handleUpdateLimit = (limit: number) => {
+    queueRef.current = queueRef.current.then(async () => {
+      setMonthlyLimit(limit);
+      await AsyncStorage.setItem('neon-budget-limit', limit.toString());
+    });
+  };
+
+  const handleUpdatePin = (pin: string | null) => {
+    queueRef.current = queueRef.current.then(async () => {
+      setSavedPin(pin);
+      if (pin) {
+        await AsyncStorage.setItem('neon-budget-pin', pin);
+      } else {
+        await AsyncStorage.removeItem('neon-budget-pin');
+      }
+    });
   };
 
   const handleSubmitTransaction = (amount: string, description: string, type: 'income' | 'expense', category: string) => {
@@ -361,22 +408,30 @@ export default function App() {
     .filter(t => t.type === 'expense')
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const totalIncome = currentMonthTransactions
-    .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const totalExpense = currentMonthTransactions
-    .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0);
+  const totalIncome = displayedTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+  const totalExpense = displayedTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
 
   const balance = totalIncome - totalExpense;
 
+  if (!isAppReady) {
+    return <View style={styles.container} />;
+  }
+
+  if (savedPin && isAppLocked) {
+    return (
+      <View style={styles.container}>
+        <AppLock onUnlock={() => setIsAppLocked(false)} savedPin={savedPin} />
+      </View>
+    );
+  }
+
   return (
     <SafeAreaProvider>
-      <LinearGradient
-        colors={['#0f0518', '#05050A', '#020205']}
-        style={styles.container}
-      >
+      <SafeAreaView style={styles.container}>
+        <LinearGradient
+          colors={['#0f0518', '#05050A', '#020205']}
+          style={styles.container}
+        >
         <SafeAreaView style={styles.safeArea}>
           <StatusBar style="light" />
           <ScrollView contentContainerStyle={styles.contentContainer}>
@@ -486,11 +541,14 @@ export default function App() {
               onClose={() => setSettingsVisible(false)}
               expenseCategories={expenseCategories}
               incomeCategories={incomeCategories}
-              onUpdateCategories={handleUpdateCategories}
+              onAddCategory={handleAddCategory}
+              onDeleteCategory={handleDeleteCategory}
               monthlyLimit={monthlyLimit}
               onUpdateLimit={handleUpdateLimit}
               allTransactions={allTransactions}
               onImportData={handleImportData}
+              savedPin={savedPin}
+              onUpdatePin={handleUpdatePin}
             />
 
             <InsightsModal
@@ -504,6 +562,7 @@ export default function App() {
           </ScrollView>
         </SafeAreaView>
       </LinearGradient>
+      </SafeAreaView>
     </SafeAreaProvider>
   );
 }
