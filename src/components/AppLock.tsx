@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { Lock } from 'lucide-react-native';
+import { Lock, Fingerprint } from 'lucide-react-native';
 import { theme } from '../theme/theme';
+import * as LocalAuthentication from 'expo-local-authentication';
 
 interface Props {
   onUnlock: () => void;
@@ -12,6 +13,36 @@ interface Props {
 export const AppLock: React.FC<Props> = ({ onUnlock, savedPin }) => {
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
+  const [biometricSupported, setBiometricSupported] = useState(false);
+
+  useEffect(() => {
+    const checkBiometrics = async () => {
+      const compatible = await LocalAuthentication.hasHardwareAsync();
+      const enrolled = await LocalAuthentication.isEnrolledAsync();
+      if (compatible && enrolled) {
+        setBiometricSupported(true);
+        handleBiometricAuth(); // Auto-prompt on load
+      }
+    };
+    checkBiometrics();
+  }, []);
+
+  const handleBiometricAuth = async () => {
+    try {
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Odblokuj NeonBudget',
+        fallbackLabel: 'Użyj kodu PIN',
+        cancelLabel: 'Anuluj',
+        disableDeviceFallback: true,
+      });
+
+      if (result.success) {
+        onUnlock();
+      }
+    } catch (e) {
+      console.log('Biometric auth error', e);
+    }
+  };
 
   const handlePress = (num: string) => {
     if (pin.length < 4) {
@@ -61,10 +92,15 @@ export const AppLock: React.FC<Props> = ({ onUnlock, savedPin }) => {
               <Text style={styles.keyText}>{num}</Text>
             </TouchableOpacity>
           ))}
-          <View style={styles.key} />
+          
+          <TouchableOpacity style={styles.key} onPress={biometricSupported ? handleBiometricAuth : () => {}}>
+            {biometricSupported ? <Fingerprint size={28} color={theme.colors.neonPurpleLight} /> : <Text style={styles.keyText}></Text>}
+          </TouchableOpacity>
+          
           <TouchableOpacity style={styles.key} onPress={() => handlePress('0')}>
             <Text style={styles.keyText}>0</Text>
           </TouchableOpacity>
+          
           <TouchableOpacity style={styles.key} onPress={handleBackspace}>
             <Text style={styles.keyText}>⌫</Text>
           </TouchableOpacity>
