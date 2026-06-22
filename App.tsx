@@ -22,7 +22,7 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 }
 
 export default function App() {
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
     Inter_700Bold,
@@ -199,8 +199,13 @@ export default function App() {
 
   const balance = totalIncome - totalExpense;
 
-  if (!fontsLoaded) {
-    return <View style={{ flex: 1, backgroundColor: '#05050A' }} />;
+  // If fonts are not loaded yet and there's no error, show loading screen
+  if (!fontsLoaded && !fontError) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#05050A', justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={{ color: '#9D4EDD' }}>Ładowanie NeonBudget...</Text>
+      </View>
+    );
   }
 
   return (
