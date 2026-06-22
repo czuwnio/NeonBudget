@@ -46,6 +46,7 @@ export default function App() {
   const initialMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   const [selectedMonthKey, setSelectedMonthKey] = useState(initialMonthKey);
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState<'all' | 'expense' | 'income'>('all');
 
   const queueRef = useRef<Promise<void>>(Promise.resolve());
 
@@ -259,9 +260,10 @@ export default function App() {
       const matchesMonth = tMonthKey === selectedMonthKey;
       const matchesSearch = t.description.toLowerCase().includes(searchQuery.toLowerCase()) || 
                             t.category.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesMonth && matchesSearch;
+      const matchesFilter = filterType === 'all' || t.type === filterType;
+      return matchesMonth && matchesSearch && matchesFilter;
     });
-  }, [allTransactions, selectedMonthKey, searchQuery]);
+  }, [allTransactions, selectedMonthKey, searchQuery, filterType]);
 
   const prevMonthKey = useMemo(() => {
     const [y, m] = selectedMonthKey.split('-');
@@ -353,6 +355,18 @@ export default function App() {
               />
             </View>
 
+            <View style={styles.filterTabs}>
+              <TouchableOpacity onPress={() => setFilterType('all')} style={[styles.filterTab, filterType === 'all' && styles.filterTabActive]}>
+                <Text style={[styles.filterTabText, filterType === 'all' && styles.filterTabTextActive]}>Wszystko</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setFilterType('expense')} style={[styles.filterTab, filterType === 'expense' && styles.filterTabActive]}>
+                <Text style={[styles.filterTabText, filterType === 'expense' && styles.filterTabTextActive]}>Wydatki</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setFilterType('income')} style={[styles.filterTab, filterType === 'income' && styles.filterTabActive]}>
+                <Text style={[styles.filterTabText, filterType === 'income' && styles.filterTabTextActive]}>Przychody</Text>
+              </TouchableOpacity>
+            </View>
+
             <TransactionList 
               transactions={currentMonthTransactions} 
               onDeleteTransaction={handleDeleteTransaction} 
@@ -386,6 +400,7 @@ export default function App() {
               visible={isInsightsVisible}
               onClose={() => setInsightsVisible(false)}
               transactions={currentMonthTransactions}
+              allTransactions={allTransactions}
               selectedMonthKey={selectedMonthKey}
             />
 
@@ -499,5 +514,34 @@ const styles = StyleSheet.create({
     fontFamily: theme.typography.fontFamily,
     fontSize: 14,
     height: '100%',
+  },
+  filterTabs: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 16,
+  },
+  filterTab: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  filterTabActive: {
+    backgroundColor: 'rgba(123, 44, 191, 0.2)',
+    borderColor: theme.colors.neonPurple,
+  },
+  filterTabText: {
+    fontFamily: theme.typography.fontFamily,
+    color: theme.colors.textSecondary,
+    fontSize: 12,
+    fontWeight: '500',
+    letterSpacing: 0.5,
+  },
+  filterTabTextActive: {
+    color: theme.colors.textPrimary,
+    fontWeight: 'bold',
   }
 });

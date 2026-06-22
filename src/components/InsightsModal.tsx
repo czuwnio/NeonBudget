@@ -9,10 +9,11 @@ interface InsightsModalProps {
   visible: boolean;
   onClose: () => void;
   transactions: Transaction[];
+  allTransactions: Transaction[];
   selectedMonthKey: string;
 }
 
-export const InsightsModal: React.FC<InsightsModalProps> = ({ visible, onClose, transactions, selectedMonthKey }) => {
+export const InsightsModal: React.FC<InsightsModalProps> = ({ visible, onClose, transactions, allTransactions, selectedMonthKey }) => {
   const expenses = transactions.filter(t => t.type === 'expense');
   const totalExpense = expenses.reduce((sum, t) => sum + t.amount, 0);
   
@@ -27,6 +28,10 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({ visible, onClose, 
   const projected = avgDaily * daysInMonth;
 
   const biggestExpense = expenses.length > 0 ? expenses.reduce((prev, curr) => (prev.amount > curr.amount) ? prev : curr) : null;
+
+  const totalAllTimeIncome = allTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+  const totalAllTimeExpense = allTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+  const totalNetWorth = totalAllTimeIncome - totalAllTimeExpense;
 
   const formatPLN = (val: number) => `${val.toFixed(2)} PLN`;
 
@@ -47,8 +52,19 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({ visible, onClose, 
             
             <View style={styles.card}>
               <View style={styles.cardHeader}>
+                <TrendingUp size={20} color={theme.colors.neonGreen} />
+                <Text style={styles.cardTitle}>Całkowite Oszczędności (All-time)</Text>
+              </View>
+              <Text style={[styles.cardValue, { color: totalNetWorth >= 0 ? theme.colors.neonGreen : theme.colors.danger }]}>
+                {formatPLN(totalNetWorth)}
+              </Text>
+              <Text style={styles.cardDesc}>Zgromadzony kapitał od początku</Text>
+            </View>
+
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
                 <Calendar size={20} color={theme.colors.neonPurple} />
-                <Text style={styles.cardTitle}>Średnio dziennie</Text>
+                <Text style={styles.cardTitle}>Średnio dziennie (Ten miesiąc)</Text>
               </View>
               <Text style={styles.cardValue}>{formatPLN(avgDaily)}</Text>
             </View>
