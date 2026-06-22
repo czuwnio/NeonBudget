@@ -139,7 +139,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
           ))}
         </View>
 
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: theme.spacing.md }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: theme.spacing.xs }}>
           <TextInput
             style={[styles.input, { flex: 1, marginBottom: 0 }]}
             placeholder="Opis (np. Zakupy, Czynsz)"
@@ -151,6 +151,18 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
             <Mic size={20} color={theme.colors.neonPurple} />
           </TouchableOpacity>
         </View>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: theme.spacing.md }}>
+          {['#zakupy', '#weekend', '#paliwo', '#rachunki', '#wyjazd', '#jedzenie'].map((tag) => (
+            <TouchableOpacity 
+              key={tag} 
+              style={[styles.quickAmtBtn, { marginRight: 8, paddingHorizontal: 12 }]}
+              onPress={() => setDescription(prev => prev ? `${prev} ${tag}` : tag)}
+            >
+              <Text style={styles.quickAmtText}>{tag}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
 
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: theme.spacing.md }}>
           <TextInput
