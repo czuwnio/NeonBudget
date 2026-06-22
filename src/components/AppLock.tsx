@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Lock, Fingerprint } from 'lucide-react-native';
 import { theme } from '../theme/theme';
@@ -16,12 +16,18 @@ export const AppLock: React.FC<Props> = ({ onUnlock, savedPin }) => {
   const [biometricSupported, setBiometricSupported] = useState(false);
 
   useEffect(() => {
+    if (Platform.OS === 'web') return; // Do not use LocalAuthentication on the web to prevent crashes
+    
     const checkBiometrics = async () => {
-      const compatible = await LocalAuthentication.hasHardwareAsync();
-      const enrolled = await LocalAuthentication.isEnrolledAsync();
-      if (compatible && enrolled) {
-        setBiometricSupported(true);
-        handleBiometricAuth(); // Auto-prompt on load
+      try {
+        const compatible = await LocalAuthentication.hasHardwareAsync();
+        const enrolled = await LocalAuthentication.isEnrolledAsync();
+        if (compatible && enrolled) {
+          setBiometricSupported(true);
+          handleBiometricAuth(); // Auto-prompt on load
+        }
+      } catch (e) {
+        console.log('Biometrics check error:', e);
       }
     };
     checkBiometrics();
