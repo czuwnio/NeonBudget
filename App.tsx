@@ -241,6 +241,17 @@ export default function App() {
     }
   };
 
+  const handleImportData = (data: Transaction[]) => {
+    queueRef.current = queueRef.current.then(async () => {
+      try {
+        await AsyncStorage.setItem('neon-budget-transactions', JSON.stringify(data));
+        setAllTransactions(data);
+      } catch (e) {
+        Alert.alert('Błąd', 'Nie udało się wgrać danych.');
+      }
+    });
+  };
+
   const currentMonthTransactions = useMemo(() => {
     return allTransactions.filter(t => {
       const d = new Date(t.date);
@@ -251,6 +262,25 @@ export default function App() {
       return matchesMonth && matchesSearch;
     });
   }, [allTransactions, selectedMonthKey, searchQuery]);
+
+  const prevMonthKey = useMemo(() => {
+    const [y, m] = selectedMonthKey.split('-');
+    let date = new Date(parseInt(y), parseInt(m) - 1, 1);
+    date.setMonth(date.getMonth() - 1);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+  }, [selectedMonthKey]);
+
+  const prevMonthTransactions = useMemo(() => {
+    return allTransactions.filter(t => {
+      const d = new Date(t.date);
+      const tMonthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      return tMonthKey === prevMonthKey;
+    });
+  }, [allTransactions, prevMonthKey]);
+
+  const prevTotalExpense = prevMonthTransactions
+    .filter(t => t.type === 'expense')
+    .reduce((sum, t) => sum + t.amount, 0);
 
   const totalIncome = currentMonthTransactions
     .filter(t => t.type === 'income')
@@ -290,6 +320,7 @@ export default function App() {
               totalIncome={totalIncome} 
               totalExpense={totalExpense} 
               monthlyLimit={monthlyLimit}
+              prevTotalExpense={prevTotalExpense}
             />
 
             <CategoryChart 
@@ -334,14 +365,16 @@ export default function App() {
               </TouchableOpacity>
             </View>
 
-            <SettingsModal
-              visible={isSettingsVisible}
+            <SettingsModal 
+              visible={isSettingsVisible} 
               onClose={() => setSettingsVisible(false)}
               expenseCategories={expenseCategories}
               incomeCategories={incomeCategories}
               onUpdateCategories={handleUpdateCategories}
               monthlyLimit={monthlyLimit}
               onUpdateLimit={handleUpdateLimit}
+              allTransactions={allTransactions}
+              onImportData={handleImportData}
             />
 
           </ScrollView>

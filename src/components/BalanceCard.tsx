@@ -9,6 +9,7 @@ interface BalanceCardProps {
   totalIncome: number;
   totalExpense: number;
   monthlyLimit?: number;
+  prevTotalExpense?: number;
 }
 
 const formatValue = (val: number, isIncome: boolean = false, isExpense: boolean = false) => {
@@ -26,7 +27,7 @@ const formatValue = (val: number, isIncome: boolean = false, isExpense: boolean 
   return `${sign}${parts.join(',')} zł`;
 };
 
-export const BalanceCard: React.FC<BalanceCardProps> = ({ balance, totalIncome, totalExpense, monthlyLimit }) => {
+export const BalanceCard: React.FC<BalanceCardProps> = ({ balance, totalIncome, totalExpense, monthlyLimit, prevTotalExpense = 0 }) => {
   const limit = monthlyLimit || 0;
   const progressPercent = limit > 0 ? Math.min((totalExpense / limit) * 100, 100) : 0;
   
@@ -34,6 +35,21 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ balance, totalIncome, 
   if (progressPercent >= 90) barColor = theme.colors.danger;
   else if (progressPercent >= 75) barColor = '#FF9F1C'; // Orange
   else if (progressPercent >= 50) barColor = '#4361EE'; // Blue for mid way
+
+  let momMessage = null;
+  let momColor = theme.colors.textSecondary;
+  if (prevTotalExpense > 0) {
+    const diff = totalExpense - prevTotalExpense;
+    if (diff > 0) {
+      momMessage = `Wydajesz o ${formatValue(diff)} więcej niż w zeszłym miesiącu.`;
+      momColor = theme.colors.danger;
+    } else if (diff < 0) {
+      momMessage = `Zaoszczędziłeś ${formatValue(Math.abs(diff))} w stosunku do zeszłego miesiąca!`;
+      momColor = theme.colors.neonGreen;
+    } else {
+      momMessage = 'Wydatki równe zeszłemu miesiącowi.';
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -76,6 +92,12 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ balance, totalIncome, 
             <View style={styles.progressBg}>
               <View style={[styles.progressFill, { width: `${progressPercent}%`, backgroundColor: barColor }]} />
             </View>
+          </View>
+        )}
+
+        {momMessage && (
+          <View style={styles.momContainer}>
+            <Text style={[styles.momText, { color: momColor }]}>{momMessage}</Text>
           </View>
         )}
       </BlurView>
@@ -190,5 +212,20 @@ const styles = StyleSheet.create({
   progressFill: {
     height: '100%',
     borderRadius: 3,
+  },
+  momContainer: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.05)',
+    width: '100%',
+    alignItems: 'center',
+  },
+  momText: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 11,
+    fontWeight: '500',
+    textAlign: 'center',
+    letterSpacing: 0.5,
   }
 });

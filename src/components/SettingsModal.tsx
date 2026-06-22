@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput, ScrollView,
 import { BlurView } from 'expo-blur';
 import { X, Plus, Trash2 } from 'lucide-react-native';
 import { theme } from '../theme/theme';
+import { Transaction } from '../types';
 
 interface SettingsModalProps {
   visible: boolean;
@@ -12,6 +13,8 @@ interface SettingsModalProps {
   onUpdateCategories: (type: 'expense' | 'income', newCategories: string[]) => void;
   monthlyLimit: number;
   onUpdateLimit: (limit: number) => void;
+  allTransactions: Transaction[];
+  onImportData: (data: Transaction[]) => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -22,15 +25,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onUpdateCategories,
   monthlyLimit,
   onUpdateLimit,
+  allTransactions,
+  onImportData,
 }) => {
   const [newExpenseCat, setNewExpenseCat] = useState('');
   const [newIncomeCat, setNewIncomeCat] = useState('');
-  const [limitInput, setLimitInput] = useState(monthlyLimit ? monthlyLimit.toString() : '');
+  const [localLimit, setLocalLimit] = useState(monthlyLimit ? monthlyLimit.toString() : '');
+  const [backupCode, setBackupCode] = useState('');
 
-  // Synchronize when modal opens
   React.useEffect(() => {
     if (visible) {
-      setLimitInput(monthlyLimit ? monthlyLimit.toString() : '');
+      setLocalLimit(monthlyLimit ? monthlyLimit.toString() : '');
     }
   }, [visible, monthlyLimit]);
 
@@ -58,13 +63,32 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   };
 
-  const handleSaveLimit = () => {
-    const parsed = parseFloat(limitInput.replace(',', '.'));
+  const handleSave = () => {
+    const parsed = parseFloat(localLimit.replace(',', '.'));
     if (!isNaN(parsed) && parsed >= 0) {
       onUpdateLimit(parsed);
-      onClose(); // Optional: close modal on save, or just show success
     } else {
       onUpdateLimit(0);
+    }
+    onClose();
+  };
+
+  const generateBackup = () => {
+    setBackupCode(JSON.stringify(allTransactions));
+  };
+
+  const loadBackup = () => {
+    try {
+      const data = JSON.parse(backupCode);
+      if (Array.isArray(data)) {
+        onImportData(data);
+        setBackupCode('');
+        alert('Kopia zapasowa wgrana pomyślnie!');
+      } else {
+        alert('Błąd: Nieprawidłowy format pliku JSON.');
+      }
+    } catch(e) {
+      alert('Błąd: Nieprawidłowy kod zapasowy.');
     }
   };
 
@@ -82,80 +106,103 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </View>
 
           <ScrollView style={styles.scrollArea}>
-            <Text style={styles.sectionTitle}>MIESIĘCZNY LIMIT WYDATKÓW (BUDŻET)</Text>
-            <View style={styles.addRow}>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>MIESIĘCZNY LIMIT WYDATKÓW (PLN)</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Np. 3000 (0 = brak limitu)"
-                placeholderTextColor={theme.colors.textSecondary}
-                value={limitInput}
-                onChangeText={setLimitInput}
+                value={localLimit}
+                onChangeText={setLocalLimit}
                 keyboardType="numeric"
-              />
-              <TouchableOpacity style={styles.addBtn} onPress={handleSaveLimit}>
-                <Text style={styles.saveBtnText}>Zapisz</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.divider} />
-
-            <Text style={styles.sectionTitle}>KATEGORIE WYDATKÓW</Text>
-            <View style={styles.catList}>
-              {expenseCategories.map(cat => (
-                <View key={cat} style={styles.catItem}>
-                  <Text style={styles.catText}>{cat}</Text>
-                  {expenseCategories.length > 1 && (
-                    <TouchableOpacity onPress={() => handleRemoveCat('expense', cat)}>
-                      <Trash2 size={16} color={theme.colors.danger} />
-                    </TouchableOpacity>
-                  )}
-                </View>
-              ))}
-            </View>
-
-            <View style={styles.addRow}>
-              <TextInput
-                style={styles.input}
-                placeholder="Nowa kategoria wydatku"
+                placeholder="0"
                 placeholderTextColor={theme.colors.textSecondary}
-                value={newExpenseCat}
-                onChangeText={setNewExpenseCat}
-                onSubmitEditing={() => handleAddCat('expense')}
               />
-              <TouchableOpacity style={styles.addBtn} onPress={() => handleAddCat('expense')}>
-                <Plus size={20} color="#fff" />
+              <Text style={styles.helperText}>Ustaw 0 aby wyłączyć limit.</Text>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>KATEGORIE WYDATKÓW</Text>
+              <View style={styles.catList}>
+                {expenseCategories.map(cat => (
+                  <View key={cat} style={styles.catItem}>
+                    <Text style={styles.catText}>{cat}</Text>
+                    {expenseCategories.length > 1 && (
+                      <TouchableOpacity onPress={() => handleRemoveCat('expense', cat)}>
+                        <Trash2 size={16} color={theme.colors.danger} />
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                ))}
+              </View>
+
+              <View style={styles.addRow}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Nowa kategoria wydatku"
+                  placeholderTextColor={theme.colors.textSecondary}
+                  value={newExpenseCat}
+                  onChangeText={setNewExpenseCat}
+                  onSubmitEditing={() => handleAddCat('expense')}
+                />
+                <TouchableOpacity style={styles.addBtnIcon} onPress={() => handleAddCat('expense')}>
+                  <Plus size={20} color="#fff" />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>KATEGORIE PRZYCHODÓW</Text>
+              <View style={styles.catList}>
+                {incomeCategories.map(cat => (
+                  <View key={cat} style={styles.catItem}>
+                    <Text style={styles.catText}>{cat}</Text>
+                    {incomeCategories.length > 1 && (
+                      <TouchableOpacity onPress={() => handleRemoveCat('income', cat)}>
+                        <Trash2 size={16} color={theme.colors.danger} />
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                ))}
+              </View>
+
+              <View style={styles.addRow}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Nowa kategoria przychodu"
+                  placeholderTextColor={theme.colors.textSecondary}
+                  value={newIncomeCat}
+                  onChangeText={setNewIncomeCat}
+                  onSubmitEditing={() => handleAddCat('income')}
+                />
+                <TouchableOpacity style={styles.addBtnIcon} onPress={() => handleAddCat('income')}>
+                  <Plus size={20} color="#fff" />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>KOPIA ZAPASOWA (JSON)</Text>
+              <TouchableOpacity style={styles.backupBtn} onPress={generateBackup}>
+                <Text style={styles.backupBtnText}>Generuj mój kod zapasowy</Text>
               </TouchableOpacity>
-            </View>
-
-            <View style={styles.divider} />
-
-            <Text style={styles.sectionTitle}>KATEGORIE PRZYCHODÓW</Text>
-            <View style={styles.catList}>
-              {incomeCategories.map(cat => (
-                <View key={cat} style={styles.catItem}>
-                  <Text style={styles.catText}>{cat}</Text>
-                  {incomeCategories.length > 1 && (
-                    <TouchableOpacity onPress={() => handleRemoveCat('income', cat)}>
-                      <Trash2 size={16} color={theme.colors.danger} />
-                    </TouchableOpacity>
-                  )}
-                </View>
-              ))}
-            </View>
-
-            <View style={styles.addRow}>
+              
               <TextInput
-                style={styles.input}
-                placeholder="Nowa kategoria przychodu"
+                style={[styles.input, { height: 80, textAlignVertical: 'top', marginTop: 12 }]}
+                value={backupCode}
+                onChangeText={setBackupCode}
+                multiline
+                numberOfLines={4}
+                placeholder="Wklej kod zapasowy tutaj..."
                 placeholderTextColor={theme.colors.textSecondary}
-                value={newIncomeCat}
-                onChangeText={setNewIncomeCat}
-                onSubmitEditing={() => handleAddCat('income')}
               />
-              <TouchableOpacity style={styles.addBtn} onPress={() => handleAddCat('income')}>
-                <Plus size={20} color="#fff" />
+              <TouchableOpacity style={[styles.backupBtn, { marginTop: 8 }]} onPress={loadBackup}>
+                <Text style={styles.backupBtnText}>Przywróć z wklejonego kodu</Text>
               </TouchableOpacity>
+              <Text style={styles.helperText}>Skopiuj wygenerowany kod i zapisz go w bezpiecznym miejscu.</Text>
             </View>
+
+            <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
+              <Text style={styles.saveBtnText}>Zapisz ustawienia</Text>
+            </TouchableOpacity>
           </ScrollView>
         </View>
       </View>
@@ -200,6 +247,9 @@ const styles = StyleSheet.create({
   scrollArea: {
     padding: 20,
   },
+  section: {
+    marginBottom: 24,
+  },
   sectionTitle: {
     fontFamily: theme.typography.fontFamily,
     fontWeight: '500',
@@ -207,6 +257,12 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     letterSpacing: 1.5,
     marginBottom: 12,
+  },
+  helperText: {
+    fontSize: 12,
+    color: theme.colors.textSecondary,
+    marginTop: 8,
+    fontStyle: 'italic',
   },
   catList: {
     flexDirection: 'row',
@@ -231,7 +287,6 @@ const styles = StyleSheet.create({
   addRow: {
     flexDirection: 'row',
     gap: 8,
-    marginBottom: 20,
   },
   input: {
     flex: 1,
@@ -244,21 +299,37 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontFamily: theme.typography.fontFamily,
   },
-  addBtn: {
+  addBtnIcon: {
     backgroundColor: theme.colors.neonPurple,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
     borderRadius: theme.borderRadius.md,
   },
+  backupBtn: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingVertical: 10,
+    borderRadius: theme.borderRadius.sm,
+    alignItems: 'center',
+  },
+  backupBtnText: {
+    fontFamily: theme.typography.fontFamily,
+    color: theme.colors.textPrimary,
+    fontSize: 13,
+  },
+  saveBtn: {
+    backgroundColor: theme.colors.neonPurple,
+    paddingVertical: 16,
+    borderRadius: theme.borderRadius.md,
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 30,
+  },
   saveBtnText: {
     fontFamily: theme.typography.fontFamily,
     fontWeight: 'bold',
     color: '#fff',
+    fontSize: 16,
+    letterSpacing: 1,
   },
-  divider: {
-    height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    marginVertical: 20,
-  }
 });
