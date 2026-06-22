@@ -112,7 +112,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
 
         <TextInput
           style={styles.input}
-          placeholder="Kwota (np. 150.50)"
+          placeholder="Kwota (np. 150 lub 100 USD/EUR)"
           placeholderTextColor={theme.colors.textSecondary}
           keyboardType="numeric"
           value={amount}

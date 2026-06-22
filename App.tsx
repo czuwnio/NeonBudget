@@ -159,6 +159,16 @@ export default function App() {
     });
   };
 
+  const playSound = () => {
+    if (Platform.OS === 'web') {
+      try {
+        const audio = new Audio('https://www.soundjay.com/misc/sounds/coins-in-hand-2.mp3');
+        audio.volume = 0.5;
+        audio.play().catch(() => {});
+      } catch (e) {}
+    }
+  };
+
   const handleSubmitTransaction = (amount: string, description: string, type: 'income' | 'expense', category: string, dateStr?: string) => {
     const trimmedDesc = description.trim();
     if (!trimmedDesc || !amount) {
@@ -166,9 +176,16 @@ export default function App() {
       return;
     }
 
-    const parsedAmount = parseFloat(amount.replace(',', '.'));
+    let parsedAmount = parseFloat(amount.replace(',', '.'));
+    
+    // Auto Currency Converter
+    const lowerAmt = amount.toLowerCase();
+    if (lowerAmt.includes('usd')) parsedAmount *= 4.05;
+    else if (lowerAmt.includes('eur')) parsedAmount *= 4.35;
+    else if (lowerAmt.includes('gbp')) parsedAmount *= 5.10;
+
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      setValidationError('Błąd walidacji: kwota musi być dodatnia');
+      setValidationError('Wprowadź prawidłową kwotę większą od zera.');
       return;
     }
 
