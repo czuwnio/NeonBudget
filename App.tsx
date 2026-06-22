@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, ScrollView, Alert, LayoutAnimation, Platform, U
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Wallet, Download, Settings, Search, TrendingUp } from 'lucide-react-native';
+import { Wallet, Download, Settings, Search, TrendingUp, Flame } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { theme } from './src/theme/theme';
@@ -430,6 +430,33 @@ export default function App() {
 
   const balance = totalIncome - totalExpense;
 
+  const streakDays = useMemo(() => {
+    const uniqueDates = Array.from(new Set(allTransactions.map(t => t.date.split('T')[0]))).sort().reverse();
+    if (uniqueDates.length === 0) return 0;
+    
+    let currentStreak = 0;
+    let expectedDate = new Date();
+    const todayStr = expectedDate.toISOString().split('T')[0];
+    let startIndex = uniqueDates.indexOf(todayStr);
+    
+    if (startIndex === -1) {
+      expectedDate.setDate(expectedDate.getDate() - 1);
+      const yesterdayStr = expectedDate.toISOString().split('T')[0];
+      startIndex = uniqueDates.indexOf(yesterdayStr);
+      if (startIndex === -1) return 0;
+    }
+    
+    for (let i = startIndex; i < uniqueDates.length; i++) {
+      if (uniqueDates[i] === expectedDate.toISOString().split('T')[0]) {
+        currentStreak++;
+        expectedDate.setDate(expectedDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    return currentStreak;
+  }, [allTransactions]);
+
   if (!isAppReady) {
     return <View style={styles.container} />;
   }
@@ -456,6 +483,12 @@ export default function App() {
               <Wallet size={28} color={theme.colors.neonPurpleLight} />
               <Text style={styles.title}>NeonBudget</Text>
               <View style={styles.headerRight}>
+                {streakDays > 0 && (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 12, backgroundColor: 'rgba(255, 159, 28, 0.15)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255, 159, 28, 0.3)' }}>
+                    <Flame size={16} color="#FF9F1C" />
+                    <Text style={{ color: '#FF9F1C', fontWeight: 'bold', marginLeft: 4, fontFamily: theme.typography.fontFamily }}>{streakDays}</Text>
+                  </View>
+                )}
                 <TouchableOpacity onPress={() => setInsightsVisible(true)} style={styles.headerIcon}>
                   <TrendingUp size={24} color={theme.colors.textPrimary} />
                 </TouchableOpacity>

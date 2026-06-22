@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { PlusCircle, ArrowUpRight, ArrowDownRight } from 'lucide-react-native';
+import { PlusCircle, ArrowUpRight, ArrowDownRight, Mic } from 'lucide-react-native';
 import { theme } from '../theme/theme';
 
 interface TransactionFormProps {
@@ -60,6 +60,28 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
     }
   };
 
+  const startVoiceInput = () => {
+    if (Platform.OS === 'web') {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'pl-PL';
+        recognition.onresult = (event: any) => {
+          const transcript = event.results[0][0].transcript;
+          setDescription((prev) => (prev ? prev + ' ' + transcript : transcript));
+        };
+        recognition.onerror = (event: any) => {
+          console.error("Speech error", event);
+        };
+        recognition.start();
+      } else {
+        window.alert('Twoja przeglądarka nie obsługuje rozpoznawania mowy (spróbuj w Chrome).');
+      }
+    } else {
+      alert('Funkcja w przygotowaniu dla urządzeń mobilnych.');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <BlurView intensity={20} tint="dark" style={styles.glassCard}>
@@ -109,13 +131,18 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
           ))}
         </View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Opis (np. Zakupy, Czynsz)"
-          placeholderTextColor={theme.colors.textSecondary}
-          value={description}
-          onChangeText={setDescription}
-        />
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: theme.spacing.md }}>
+          <TextInput
+            style={[styles.input, { flex: 1, marginBottom: 0 }]}
+            placeholder="Opis (np. Zakupy, Czynsz)"
+            placeholderTextColor={theme.colors.textSecondary}
+            value={description}
+            onChangeText={setDescription}
+          />
+          <TouchableOpacity onPress={startVoiceInput} style={styles.micBtn}>
+            <Mic size={20} color={theme.colors.neonPurple} />
+          </TouchableOpacity>
+        </View>
 
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: theme.spacing.md }}>
           <TextInput
@@ -240,6 +267,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
     marginBottom: theme.spacing.md,
+  },
+  micBtn: {
+    padding: 14,
+    marginLeft: 8,
+    backgroundColor: 'rgba(157, 78, 221, 0.1)',
+    borderRadius: theme.borderRadius.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(157, 78, 221, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   quickAmtBtn: {
     flex: 1,

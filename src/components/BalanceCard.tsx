@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
+import { AlertTriangle } from 'lucide-react-native';
 import { theme } from '../theme/theme';
 
 interface BalanceCardProps {
@@ -91,7 +92,12 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ balance, totalIncome, 
         {limit > 0 && (
           <View style={styles.budgetContainer}>
             <View style={styles.budgetLabels}>
-              <Text style={styles.budgetLabel}>WYKORZYSTANIE BUDŻETU ({limit} PLN)</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={styles.budgetLabel}>WYKORZYSTANIE BUDŻETU ({limit} PLN)</Text>
+                {progressPercent >= 90 && (
+                  <AlertTriangle size={14} color={theme.colors.danger} style={{ marginLeft: 6 }} />
+                )}
+              </View>
               <Text style={[styles.budgetPercent, { color: barColor }]}>
                 {Math.round((totalExpense / limit) * 100)}%
               </Text>
