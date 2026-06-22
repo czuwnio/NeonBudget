@@ -80,7 +80,9 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({ visible, onClose, 
         
         <View style={styles.modalContent}>
           <View style={styles.header}>
-            <Text style={styles.title}>Statystyki i Analiza</Text>
+            <View style={{ flex: 1, paddingRight: 16 }}>
+              <Text style={styles.title}>Statystyki i Analiza</Text>
+            </View>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
               <X size={24} color={theme.colors.textPrimary} />
             </TouchableOpacity>

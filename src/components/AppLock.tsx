@@ -16,25 +16,21 @@ export const AppLock: React.FC<Props> = ({ onUnlock, savedPin }) => {
   const [biometricSupported, setBiometricSupported] = useState(false);
 
   useEffect(() => {
-    if (Platform.OS === 'web') return; // Do not use LocalAuthentication on the web to prevent crashes
-    
-    const checkBiometrics = async () => {
-      try {
-        const compatible = await LocalAuthentication.hasHardwareAsync();
-        const enrolled = await LocalAuthentication.isEnrolledAsync();
-        if (compatible && enrolled) {
-          setBiometricSupported(true);
-          handleBiometricAuth(); // Auto-prompt on load
-        }
-      } catch (e) {
-        console.log('Biometrics check error:', e);
-      }
-    };
-    checkBiometrics();
+    if (Platform.OS === 'web') return;
+    handleBiometricAuth(true); // Cicha próba przy starcie (silent = true)
   }, []);
 
-  const handleBiometricAuth = async () => {
+  const handleBiometricAuth = async (silent = false) => {
+    if (Platform.OS === 'web') return;
     try {
+      const compatible = await LocalAuthentication.hasHardwareAsync();
+      const enrolled = await LocalAuthentication.isEnrolledAsync();
+      
+      if (!compatible || !enrolled) {
+        if (!silent) alert('Biometria nie jest skonfigurowana na tym urządzeniu.');
+        return;
+      }
+
       const result = await LocalAuthentication.authenticateAsync({
         promptMessage: 'Odblokuj NeonBudget',
         fallbackLabel: 'Użyj kodu PIN',
@@ -46,7 +42,7 @@ export const AppLock: React.FC<Props> = ({ onUnlock, savedPin }) => {
         onUnlock();
       }
     } catch (e) {
-      console.log('Biometric auth error', e);
+      if (!silent) alert('Wystąpił błąd autoryzacji biometrycznej.');
     }
   };
 
@@ -99,8 +95,8 @@ export const AppLock: React.FC<Props> = ({ onUnlock, savedPin }) => {
             </TouchableOpacity>
           ))}
           
-          <TouchableOpacity style={styles.key} onPress={biometricSupported ? handleBiometricAuth : () => {}}>
-            {biometricSupported ? <Fingerprint size={28} color={theme.colors.neonPurpleLight} /> : <Text style={styles.keyText}></Text>}
+          <TouchableOpacity style={styles.key} onPress={() => handleBiometricAuth(false)}>
+            {Platform.OS !== 'web' ? <Fingerprint size={28} color={theme.colors.neonPurpleLight} /> : <Text style={styles.keyText}></Text>}
           </TouchableOpacity>
           
           <TouchableOpacity style={styles.key} onPress={() => handlePress('0')}>

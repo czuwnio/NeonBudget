@@ -148,7 +148,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         
         <View style={styles.modalContent}>
           <View style={styles.header}>
-            <Text style={styles.title}>Ustawienia</Text>
+            <View style={{ flex: 1, paddingRight: 16 }}>
+              <Text style={styles.title}>Ustawienia</Text>
+            </View>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
               <X size={24} color={theme.colors.textPrimary} />
             </TouchableOpacity>
@@ -174,7 +176,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>MIESIĘCZNY LIMIT WYDATKÓW (PLN)</Text>
+              <Text style={styles.sectionTitle}>MIESIĘCZNY LIMIT WYDATKÓW</Text>
               <TextInput
                 style={styles.input}
                 value={localLimit}
@@ -409,6 +411,7 @@ const styles = StyleSheet.create({
     fontFamily: theme.typography.fontFamily,
     color: theme.colors.textPrimary,
     fontSize: 13,
+    textAlign: 'center',
   },
   pinActiveText: {
     color: theme.colors.neonGreen,
@@ -426,9 +429,10 @@ const styles = StyleSheet.create({
   },
   saveBtnText: {
     fontFamily: theme.typography.fontFamily,
-    fontWeight: 'bold',
     color: '#fff',
+    fontWeight: 'bold',
     fontSize: 16,
+    textAlign: 'center',
     letterSpacing: 1,
   },
 });

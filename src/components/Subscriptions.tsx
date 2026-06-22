@@ -59,7 +59,7 @@ export const Subscriptions: React.FC<Props> = ({ subs, onAddSub, onDeleteSub, on
           <View style={styles.row}>
             <TextInput 
               style={[styles.input, { flex: 1 }]} 
-              placeholder="Kwota (PLN)" 
+              placeholder="Kwota" 
               placeholderTextColor={theme.colors.textSecondary}
               value={newAmount}
               onChangeText={setNewAmount}
@@ -150,9 +150,10 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.md,
   },
   saveBtnText: {
-    color: '#000',
+    color: '#fff',
     fontFamily: theme.typography.fontFamily,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   empty: {
     color: theme.colors.textSecondary,
@@ -197,9 +198,10 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.neonPurple,
   },
   payBtnText: {
-    color: theme.colors.neonPurpleLight,
+    color: '#fff',
     fontFamily: theme.typography.fontFamily,
     fontSize: 12,
     fontWeight: 'bold',
+    textAlign: 'center',
   }
 });

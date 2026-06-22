@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, ScrollView, Alert, LayoutAnimation, Platform, U
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Wallet, Download, Settings, Search, TrendingUp, Flame, Star } from 'lucide-react-native';
+import { Wallet, Download, Settings, Search, TrendingUp, Flame, Star, X } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { theme } from './src/theme/theme';
@@ -553,10 +553,10 @@ function MainApp() {
   }, [userLevel, isAppReady]);
 
   const MOCK_QUOTES = [
-    "Oszczędność to wielki dochód. – Seneka",
-    "Nie oszczędzaj resztek, wydawaj to co zostanie po oszczędzeniu. – Buffett",
-    "Pieniądze często kosztują zbyt wiele. – R.W. Emerson",
-    "Zarządzaj swoimi pieniędzmi, inaczej one będą zarządzać tobą."
+    '"Oszczędność to wielki dochód." - Seneka',
+    '"Nie oszczędzaj resztek, wydawaj to co zostanie po oszczędzeniu." - Buffett',
+    '"Pieniądze często kosztują zbyt wiele." - R.W. Emerson',
+    '"Zarządzaj swoimi pieniędzmi, inaczej one będą zarządzać tobą." - Nieznany'
   ];
   const dailyQuote = useMemo(() => MOCK_QUOTES[Math.floor(Math.random() * MOCK_QUOTES.length)], []);
 
@@ -610,7 +610,7 @@ function MainApp() {
                   <Text style={styles.title}>NeonBudget</Text>
                   {userLevel >= 5 && <Text style={{ color: theme.colors.neonPurpleLight, fontWeight: 'bold', marginLeft: 8, fontSize: 10, borderWidth: 1, borderColor: theme.colors.neonPurpleLight, paddingHorizontal: 4, paddingVertical: 2, borderRadius: 4, fontFamily: theme.typography.fontFamily, marginTop: 2 }}>PRO</Text>}
                 </View>
-                <Text style={{ color: theme.colors.textSecondary, fontStyle: 'italic', fontSize: 10, marginTop: 4, opacity: 0.8 }} numberOfLines={2}>"{dailyQuote}"</Text>
+                <Text style={{ color: theme.colors.textSecondary, fontSize: 11, marginTop: 4, opacity: 0.8 }}>Ekskluzywne zarządzanie finansami</Text>
               </View>
               <View style={[styles.headerRight, { flexShrink: 0 }]}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 8, backgroundColor: 'rgba(157, 78, 221, 0.15)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(157, 78, 221, 0.3)' }}>
@@ -631,7 +631,7 @@ function MainApp() {
                 </TouchableOpacity>
               </View>
             </View>
-            <Text style={styles.subtitle}>Ekskluzywne zarządzanie finansami</Text>
+            <Text style={[styles.subtitle, { fontStyle: 'italic' }]}>{dailyQuote}</Text>
 
             <MonthSelector 
               currentMonthKey={selectedMonthKey} 
@@ -646,17 +646,7 @@ function MainApp() {
               prevTotalExpense={prevTotalExpense}
             />
 
-            <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
-              <TouchableOpacity style={styles.quickActionBtn} onPress={() => handleSubmitTransaction('50', 'Spożywcze', 'expense', 'Jedzenie')}>
-                <Text style={styles.quickActionText}>-50 Spożywcze</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.quickActionBtn} onPress={() => handleSubmitTransaction('150', 'Paliwo', 'expense', 'Transport')}>
-                <Text style={styles.quickActionText}>-150 Paliwo</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.quickActionBtn} onPress={() => handleSubmitTransaction('15', 'Kawa', 'expense', 'Inne')}>
-                <Text style={styles.quickActionText}>-15 Kawa</Text>
-              </TouchableOpacity>
-            </View>
+            {/* Usunięto szybkie przyciski wydatków (Zadanie 3) */}
 
             <CategoryChart 
               transactions={displayedTransactions} 
@@ -772,17 +762,7 @@ function MainApp() {
                 }
               }}
             />
-
-            <View style={styles.actionZone}>
-              <TouchableOpacity onPress={handleExportCSV} style={styles.exportBtn}>
-                <Download size={16} color="#FFFFFF" style={{ marginRight: 8 }} />
-                <Text style={styles.exportBtnText}>Pobierz CSV</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity onPress={handleClearAll} style={styles.clearBtn}>
-                <Text style={styles.clearBtnText}>Wyczyść wszystko</Text>
-              </TouchableOpacity>
-            </View>
+            {/* Usunięta sekcja actionZone zgodnie z Zadaniem 8 */}
 
             {isSettingsVisible && (
               <SettingsModal
@@ -845,6 +825,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: 'bold',
     textTransform: 'uppercase',
+    textAlign: 'center',
   },
   header: {
     flexDirection: 'row',

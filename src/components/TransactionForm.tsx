@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, ScrollView } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { Mic, ArrowUpRight, ArrowDownRight, Camera } from 'lucide-react-native';
+import { ArrowUpRight, ArrowDownRight, Camera } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { theme } from '../theme/theme';
 
 interface TransactionFormProps {
@@ -51,42 +52,27 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
     setCategory(newType === 'income' ? (incomeCategories[0] || 'Wypłata') : (expenseCategories[0] || 'Jedzenie'));
   };
 
-  const startVoiceInput = () => {
-    if (Platform.OS === 'web' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-      try {
-        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'pl-PL';
-        recognition.start();
+  const handleScanReceipt = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.5,
+      });
 
-        recognition.onresult = (event: any) => {
-          const transcript = event.results[0][0].transcript;
-          const match = transcript.match(/\d+([.,]\d+)?/);
-          if (match) {
-            setAmount(match[0].replace(',', '.'));
-            setDescription(transcript.replace(match[0], '').trim());
-          } else {
-            setDescription(transcript);
-          }
-        };
-      } catch (e) {
-        alert('Rozpoznawanie mowy nie jest wspierane w tej przeglądarce.');
+      if (!result.canceled) {
+        alert('Skanowanie paragonu... (Symulacja AI odczytuje zdjęcie 📷)');
+        setTimeout(() => {
+          const randomAmount = (Math.random() * 200 + 10).toFixed(2);
+          setAmount(randomAmount);
+          setDescription('Skan paragonu (zakupy)');
+          setCategory(expenseCategories.includes('Spożywcze') ? 'Spożywcze' : expenseCategories[0]);
+          setType('expense');
+          alert('Paragon odczytany pomyślnie!');
+        }, 1500);
       }
-    } else {
-      alert('Funkcja dostępna tylko w kompatybilnych przeglądarkach na PC/Android.');
-    }
-  };
-
-  const handleScanReceipt = () => {
-    if (Platform.OS === 'web') {
-      alert('Skanowanie paragonu... (AI analizuje obraz 📷)');
-      setTimeout(() => {
-        setAmount('142.50');
-        setDescription('Duże zakupy Biedronka #weekend');
-        setCategory(expenseCategories.includes('Spożywcze') ? 'Spożywcze' : expenseCategories[0]);
-        setType('expense');
-        alert('Paragon odczytany pomyślnie!');
-      }, 1500);
+    } catch (e) {
+      console.log(e);
+      alert("Wystąpił błąd podczas otwierania zdjęć.");
     }
   };
 
@@ -140,7 +126,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
 
         <TextInput
           style={styles.input}
-          placeholder="Kwota (np. 50+20 lub 100 USD)"
+          placeholder="Kwota"
           placeholderTextColor={theme.colors.textSecondary}
           value={amount}
           onChangeText={setAmount}
@@ -171,7 +157,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
           <Text style={{ color: theme.colors.textSecondary, fontFamily: theme.typography.fontFamily, flex: 1, minWidth: 120 }}>Podziel rachunek (osoby):</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
             <TouchableOpacity onPress={() => setSplitCount(Math.max(1, splitCount - 1))} style={styles.quickAmtBtn}><Text style={styles.quickAmtText}>-</Text></TouchableOpacity>
-            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>{splitCount}</Text>
+            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16, textAlign: 'center' }}>{splitCount}</Text>
             <TouchableOpacity onPress={() => setSplitCount(splitCount + 1)} style={styles.quickAmtBtn}><Text style={styles.quickAmtText}>+</Text></TouchableOpacity>
           </View>
         </View>
@@ -184,16 +170,13 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
             value={description}
             onChangeText={setDescription}
           />
-          <TouchableOpacity onPress={handleScanReceipt} style={[styles.micBtn, { marginRight: 8, backgroundColor: 'rgba(56, 176, 0, 0.15)', borderColor: 'rgba(56, 176, 0, 0.3)' }]}>
+          <TouchableOpacity onPress={handleScanReceipt} style={[styles.micBtn, { backgroundColor: 'rgba(56, 176, 0, 0.15)', borderColor: 'rgba(56, 176, 0, 0.3)' }]}>
             <Camera size={20} color={theme.colors.neonGreen} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={startVoiceInput} style={styles.micBtn}>
-            <Mic size={20} color={theme.colors.neonPurple} />
           </TouchableOpacity>
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: theme.spacing.md }}>
-          {['#zakupy', '#weekend', '#paliwo', '#rachunki', '#wyjazd', '#jedzenie'].map((tag) => (
+          {['zakupy', 'weekend', 'paliwo', 'rachunki', 'wyjazd', 'jedzenie'].map((tag) => (
             <TouchableOpacity 
               key={tag} 
               style={[styles.quickAmtBtn, { marginRight: 8, paddingHorizontal: 12 }]}
@@ -308,8 +291,10 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
   },
   toggleBtnText: {
-    fontFamily: theme.typography.fontFamily, fontWeight: '500',
+    fontFamily: theme.typography.fontFamily,
     color: theme.colors.textSecondary,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   input: {
     fontFamily: theme.typography.fontFamily, fontWeight: '500',
@@ -352,6 +337,7 @@ const styles = StyleSheet.create({
     fontFamily: theme.typography.fontFamily,
     fontSize: 14,
     fontWeight: '500',
+    textAlign: 'center',
   },
   categoryPicker: {
     marginBottom: theme.spacing.lg,
@@ -374,9 +360,10 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.neonPurple,
   },
   categoryOptText: {
-    fontFamily: theme.typography.fontFamily, fontWeight: '500',
     color: theme.colors.textSecondary,
+    fontFamily: theme.typography.fontFamily,
     fontSize: 13,
+    textAlign: 'center',
   },
   submitBtn: {
     flex: 1,
@@ -391,10 +378,12 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   submitText: {
-    fontFamily: theme.typography.fontFamily, fontWeight: 'bold',
+    fontFamily: theme.typography.fontFamily,
     color: '#fff',
+    fontWeight: 'bold',
     fontSize: 14,
     letterSpacing: 1,
+    textAlign: 'center',
   },
   actionsRow: {
     flexDirection: 'row',
@@ -408,9 +397,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelText: {
-    fontFamily: theme.typography.fontFamily, fontWeight: 'bold',
+    fontFamily: theme.typography.fontFamily,
     color: '#fff',
+    fontWeight: 'bold',
     fontSize: 14,
     letterSpacing: 1,
+    textAlign: 'center',
   }
 });

@@ -53,7 +53,7 @@ export const SavingsGoals: React.FC<Props> = ({ goals, onAddGoal, onAddFunds, on
       <View style={styles.header}>
         <View style={styles.headerTitle}>
           <Target size={20} color={theme.colors.neonGreen} />
-          <Text style={styles.title}>Skarbonki (Cele)</Text>
+          <Text style={styles.title}>Skarbonki</Text>
         </View>
         <TouchableOpacity onPress={() => setIsAdding(!isAdding)}>
           <Plus size={24} color={theme.colors.textPrimary} />
@@ -72,7 +72,7 @@ export const SavingsGoals: React.FC<Props> = ({ goals, onAddGoal, onAddFunds, on
           <View style={styles.row}>
             <TextInput 
               style={[styles.input, { flex: 1 }]} 
-              placeholder="Cel (PLN)" 
+              placeholder="Cel" 
               placeholderTextColor={theme.colors.textSecondary}
               value={newTarget}
               onChangeText={setNewTarget}
@@ -169,6 +169,7 @@ const styles = StyleSheet.create({
     color: '#000',
     fontFamily: theme.typography.fontFamily,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   empty: {
     color: theme.colors.textSecondary,
@@ -231,9 +232,10 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.md,
   },
   fundBtnText: {
-    color: theme.colors.textPrimary,
     fontFamily: theme.typography.fontFamily,
+    color: '#fff',
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: 'bold',
+    textAlign: 'center',
   }
 });
