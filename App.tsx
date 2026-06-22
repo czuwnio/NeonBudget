@@ -169,6 +169,18 @@ export default function App() {
     }
   };
 
+  const speakTransaction = (type: string, desc: string, amount: number) => {
+    if (Platform.OS === 'web' && 'speechSynthesis' in window) {
+      try {
+        const text = `Dodano ${type === 'expense' ? 'wydatek' : 'przychód'}: ${desc}, ${amount.toFixed(2)} złotych`;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'pl-PL';
+        utterance.rate = 1.1;
+        window.speechSynthesis.speak(utterance);
+      } catch (e) {}
+    }
+  };
+
   const handleSubmitTransaction = (amount: string, description: string, type: 'income' | 'expense', category: string, dateStr?: string) => {
     const trimmedDesc = description.trim();
     if (!trimmedDesc || !amount) {
