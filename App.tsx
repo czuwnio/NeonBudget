@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, ScrollView, Alert, LayoutAnimation, Platform, U
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Wallet, Download, Settings } from 'lucide-react-native';
+import { Wallet, Download, Settings, Search } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { theme } from './src/theme/theme';
@@ -42,6 +42,7 @@ export default function App() {
   const now = new Date();
   const initialMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   const [selectedMonthKey, setSelectedMonthKey] = useState(initialMonthKey);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const queueRef = useRef<Promise<void>>(Promise.resolve());
 
@@ -222,9 +223,12 @@ export default function App() {
     return allTransactions.filter(t => {
       const d = new Date(t.date);
       const tMonthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      return tMonthKey === selectedMonthKey;
+      const matchesMonth = tMonthKey === selectedMonthKey;
+      const matchesSearch = t.description.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            t.category.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesMonth && matchesSearch;
     });
-  }, [allTransactions, selectedMonthKey]);
+  }, [allTransactions, selectedMonthKey, searchQuery]);
 
   const totalIncome = currentMonthTransactions
     .filter(t => t.type === 'income')
@@ -277,6 +281,17 @@ export default function App() {
               expenseCategories={expenseCategories}
               incomeCategories={incomeCategories}
             />
+
+            <View style={styles.searchContainer}>
+              <Search size={20} color={theme.colors.textSecondary} />
+              <TextInput 
+                style={styles.searchInput}
+                placeholder="Szukaj po tytule lub kategorii..."
+                placeholderTextColor={theme.colors.textSecondary}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+            </View>
 
             <TransactionList 
               transactions={currentMonthTransactions} 
@@ -385,5 +400,24 @@ const styles = StyleSheet.create({
     color: theme.colors.danger,
     fontSize: 12,
     letterSpacing: 1,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+    borderRadius: theme.borderRadius.md,
+    paddingHorizontal: 14,
+    marginBottom: 16,
+    height: 48,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 10,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 14,
+    height: '100%',
   }
 });
