@@ -50,6 +50,27 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({ visible, onClose, 
   const sortedCategories = Object.entries(categoryTotals)
     .sort(([, a], [, b]) => b - a);
 
+  let smartInsight = "Trzymasz wydatki w ryzach, tak trzymaj! 🚀";
+  if (sortedCategories.length > 0) {
+    const topCat = sortedCategories[0];
+    if (topCat[1] > totalExpense * 0.5 && totalExpense > 0) {
+      smartInsight = `Uwaga: aż ${Math.round((topCat[1]/totalExpense)*100)}% Twoich wydatków idzie na "${topCat[0]}". Może warto poszukać oszczędności w tej kategorii? 🤔`;
+    } else if (totalExpense > totalAllTimeIncome && totalAllTimeIncome > 0) {
+      smartInsight = `Wydajesz więcej niż zarabiasz w ogólnym rozrachunku. Spróbuj zwolnić tempo! 📉`;
+    } else if (avgDaily > 100) {
+      smartInsight = `Wydajesz średnio ponad 100 PLN dziennie. Zwracaj uwagę na ukryte, drobne wydatki! 💸`;
+    }
+  }
+
+  const uniqueCategories = new Set(allTransactions.map(t => t.category)).size;
+  const achievements = [];
+  if (allTransactions.length >= 1) achievements.push("🎯 Pierwszy krok");
+  if (allTransactions.length >= 10) achievements.push("🔥 Rozgrzewka");
+  if (allTransactions.length >= 50) achievements.push("💪 Weteran");
+  if (uniqueCategories >= 5) achievements.push("🎨 Wielobarwny koszyk");
+  if (totalNetWorth >= 1000) achievements.push("💰 Pierwszy tysiąc");
+  if (totalNetWorth >= 10000) achievements.push("🚀 Kasa w kosmos");
+
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.overlay}>
@@ -65,6 +86,16 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({ visible, onClose, 
 
           <ScrollView style={styles.content}>
             
+            <View style={[styles.card, { borderColor: theme.colors.neonPurple, backgroundColor: 'rgba(157, 78, 221, 0.1)' }]}>
+              <View style={styles.cardHeader}>
+                <Star size={20} color={theme.colors.neonPurpleLight} />
+                <Text style={[styles.cardTitle, { color: theme.colors.neonPurpleLight }]}>Inteligentna Analiza</Text>
+              </View>
+              <Text style={[styles.cardDesc, { color: '#fff', fontSize: 14, fontStyle: 'italic', marginTop: 4 }]}>
+                "{smartInsight}"
+              </Text>
+            </View>
+
             <View style={styles.card}>
               <View style={styles.cardHeader}>
                 <TrendingUp size={20} color={theme.colors.neonGreen} />
@@ -83,6 +114,21 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({ visible, onClose, 
               </View>
               <Text style={[styles.cardValue, { color: rankColor }]}>{rank}</Text>
               <Text style={styles.cardDesc}>Osiągnięcie odblokowane na podstawie salda</Text>
+            </View>
+
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
+                <Star size={20} color="#FFD700" />
+                <Text style={styles.cardTitle}>Odznaki</Text>
+              </View>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                {achievements.map((ach, i) => (
+                  <View key={i} style={styles.achievementBadge}>
+                    <Text style={styles.achievementText}>{ach}</Text>
+                  </View>
+                ))}
+                {achievements.length === 0 && <Text style={styles.cardDesc}>Zacznij działać, żeby zdobywać odznaki!</Text>}
+              </View>
             </View>
 
             <View style={styles.card}>
@@ -229,5 +275,19 @@ const styles = StyleSheet.create({
     color: theme.colors.danger,
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  achievementBadge: {
+    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+  achievementText: {
+    color: '#FFD700',
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: 'bold',
+    fontSize: 12,
   }
 });
