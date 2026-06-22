@@ -27,7 +27,7 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({ visible, onClose, 
   const avgDaily = elapsedDays > 0 ? totalExpense / Math.max(elapsedDays, 1) : 0;
   const projected = avgDaily * daysInMonth;
 
-  const biggestExpense = expenses.length > 0 ? expenses.reduce((prev, curr) => (prev.amount > curr.amount) ? prev : curr) : null;
+  const largestExpense = expenses.length > 0 ? expenses.reduce((prev, curr) => (prev.amount > curr.amount) ? prev : curr) : null;
 
   const totalAllTimeIncome = allTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
   const totalAllTimeExpense = allTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
