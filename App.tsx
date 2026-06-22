@@ -495,9 +495,17 @@ export default function App() {
 
   if (savedPin && isAppLocked) {
     return (
-      <View style={styles.container}>
-        <AppLock onUnlock={() => setIsAppLocked(false)} savedPin={savedPin} />
-      </View>
+      <SafeAreaProvider>
+        <LinearGradient colors={['#05050A', '#0f0f1a']} style={styles.container}>
+          {Platform.OS === 'web' && (
+            <>
+              <View style={{ position: 'absolute', top: -50, left: -50, width: 300, height: 300, borderRadius: 150, backgroundColor: theme.colors.neonPurple, opacity: 0.15, filter: 'blur(80px)', pointerEvents: 'none' }} />
+              <View style={{ position: 'absolute', bottom: -50, right: -50, width: 300, height: 300, borderRadius: 150, backgroundColor: theme.colors.neonGreen, opacity: 0.1, filter: 'blur(80px)', pointerEvents: 'none' }} />
+            </>
+          )}
+          <AppLock onUnlock={() => setIsAppLocked(false)} savedPin={savedPin} />
+        </LinearGradient>
+      </SafeAreaProvider>
     );
   }
 
