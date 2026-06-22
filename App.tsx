@@ -44,6 +44,7 @@ export default function App() {
   const [monthlyLimit, setMonthlyLimit] = useState<number>(0);
   const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [liveRates, setLiveRates] = useState<{ USD: number; EUR: number; GBP: number }>({ USD: 4.0, EUR: 4.3, GBP: 5.0 });
   const [isSettingsVisible, setSettingsVisible] = useState(false);
   const [isInsightsVisible, setInsightsVisible] = useState(false);
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
@@ -192,9 +193,9 @@ export default function App() {
     
     // Auto Currency Converter
     const lowerAmt = amount.toLowerCase();
-    if (lowerAmt.includes('usd')) parsedAmount *= 4.05;
-    else if (lowerAmt.includes('eur')) parsedAmount *= 4.35;
-    else if (lowerAmt.includes('gbp')) parsedAmount *= 5.10;
+    if (lowerAmt.includes('usd')) parsedAmount *= liveRates.USD;
+    else if (lowerAmt.includes('eur')) parsedAmount *= liveRates.EUR;
+    else if (lowerAmt.includes('gbp')) parsedAmount *= liveRates.GBP;
 
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
       setValidationError('Wprowadź prawidłową kwotę większą od zera.');
