@@ -26,6 +26,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [category, setCategory] = useState(expenseCategories[0] || 'Jedzenie');
   const [customDate, setCustomDate] = useState(new Date().toISOString().split('T')[0]);
+  const [splitCount, setSplitCount] = useState<number>(1);
 
   const currentCategories = type === 'income' ? incomeCategories : expenseCategories;
 
@@ -51,11 +52,21 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   };
 
   const submit = () => {
-    onSubmitTransaction(amount, description, type, category, customDate);
+    // Auto-calculate split
+    let finalAmount = amount;
+    if (splitCount > 1) {
+      const parsed = parseFloat(amount.replace(',', '.'));
+      if (!isNaN(parsed)) {
+        finalAmount = (parsed / splitCount).toFixed(2);
+      }
+    }
+
+    onSubmitTransaction(finalAmount, description, type, category, customDate);
     if (!validationError) {
       if (!transactionToEdit) {
         setAmount('');
         setDescription('');
+        setSplitCount(1);
       }
     }
   };
@@ -137,6 +148,15 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
               <Text style={styles.quickAmtText}>+{val}</Text>
             </TouchableOpacity>
           ))}
+        </View>
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: theme.spacing.md, backgroundColor: 'rgba(255,255,255,0.05)', padding: 12, borderRadius: theme.borderRadius.md }}>
+          <Text style={{ color: theme.colors.textSecondary, fontFamily: theme.typography.fontFamily }}>Podziel rachunek (osoby):</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+            <TouchableOpacity onPress={() => setSplitCount(Math.max(1, splitCount - 1))} style={styles.quickAmtBtn}><Text style={styles.quickAmtText}>-</Text></TouchableOpacity>
+            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>{splitCount}</Text>
+            <TouchableOpacity onPress={() => setSplitCount(splitCount + 1)} style={styles.quickAmtBtn}><Text style={styles.quickAmtText}>+</Text></TouchableOpacity>
+          </View>
         </View>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: theme.spacing.xs }}>
