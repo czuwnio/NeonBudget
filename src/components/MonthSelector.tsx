@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.md,
   },
   monthText: {
-    fontFamily: theme.typography.fontBold,
+    fontFamily: theme.typography.fontFamily, fontWeight: 'bold',
     color: theme.colors.textPrimary,
     fontSize: 16,
     letterSpacing: 0.5,

@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     padding: theme.spacing.lg,
   },
   cardLabel: {
-    fontFamily: theme.typography.fontMedium,
+    fontFamily: theme.typography.fontFamily, fontWeight: '500',
     fontSize: 12,
     color: theme.colors.textSecondary,
     letterSpacing: 1.5,
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   emptyText: {
-    fontFamily: theme.typography.fontMedium,
+    fontFamily: theme.typography.fontFamily, fontWeight: '500',
     color: theme.colors.textSecondary,
     textAlign: 'center',
     marginVertical: theme.spacing.lg,
@@ -145,13 +145,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   txDesc: {
-    fontFamily: theme.typography.fontBold,
+    fontFamily: theme.typography.fontFamily, fontWeight: 'bold',
     color: theme.colors.textPrimary,
     fontSize: 15,
     marginBottom: 4,
   },
   txCategory: {
-    fontFamily: theme.typography.fontMedium,
+    fontFamily: theme.typography.fontFamily, fontWeight: '500',
     color: theme.colors.textSecondary,
     fontSize: 12,
     textTransform: 'capitalize',
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   txAmount: {
-    fontFamily: theme.typography.fontBold,
+    fontFamily: theme.typography.fontFamily, fontWeight: 'bold',
     fontSize: 16,
     marginRight: 12,
   },

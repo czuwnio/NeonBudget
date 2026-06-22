@@ -6,8 +6,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Wallet, Download } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { useFonts, Inter_400Regular, Inter_500Medium, Inter_700Bold } from '@expo-google-fonts/inter';
-
 import { theme } from './src/theme/theme';
 import { Transaction } from './src/types';
 
@@ -21,13 +19,17 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-export default function App() {
-  const [fontsLoaded, fontError] = useFonts({
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_700Bold,
-  });
+if (Platform.OS === 'web') {
+  const style = document.createElement('style');
+  style.type = 'text/css';
+  style.appendChild(document.createTextNode(`
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+    body { font-family: 'Outfit', sans-serif; }
+  `));
+  document.head.appendChild(style);
+}
 
+export default function App() {
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
   const [validationError, setValidationError] = useState('');
   
@@ -199,15 +201,6 @@ export default function App() {
 
   const balance = totalIncome - totalExpense;
 
-  // If fonts are not loaded yet and there's no error, show loading screen
-  if (!fontsLoaded && !fontError) {
-    return (
-      <View style={{ flex: 1, backgroundColor: '#05050A', justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{ color: '#9D4EDD' }}>Ładowanie NeonBudget...</Text>
-      </View>
-    );
-  }
-
   return (
     <SafeAreaProvider>
       <LinearGradient
@@ -287,13 +280,13 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   title: {
-    fontFamily: theme.typography.fontBold,
+    fontFamily: theme.typography.fontFamily, fontWeight: 'bold',
     fontSize: 28,
     color: theme.colors.textPrimary,
     letterSpacing: -0.5,
   },
   subtitle: {
-    fontFamily: theme.typography.fontMedium,
+    fontFamily: theme.typography.fontFamily, fontWeight: '500',
     fontSize: 13,
     color: theme.colors.textSecondary,
     textAlign: 'center',
@@ -317,7 +310,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
   },
   exportBtnText: {
-    fontFamily: theme.typography.fontMedium,
+    fontFamily: theme.typography.fontFamily, fontWeight: '500',
     color: '#FFFFFF',
     fontSize: 12,
     letterSpacing: 1,
@@ -332,7 +325,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   clearBtnText: {
-    fontFamily: theme.typography.fontMedium,
+    fontFamily: theme.typography.fontFamily, fontWeight: '500',
     color: theme.colors.danger,
     fontSize: 12,
     letterSpacing: 1,

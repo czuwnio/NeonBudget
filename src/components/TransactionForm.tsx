@@ -81,7 +81,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({ onAddTransacti
                 style={[styles.categoryOpt, category === cat && styles.categoryOptActive]}
                 onPress={() => setCategory(cat)}
               >
-                <Text style={[styles.categoryOptText, category === cat && { color: '#FFFFFF', fontFamily: theme.typography.fontBold }]}>
+                <Text style={[styles.categoryOptText, category === cat && { color: '#FFFFFF', fontFamily: theme.typography.fontFamily, fontWeight: 'bold' }]}>
                   {cat}
                 </Text>
               </TouchableOpacity>
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     padding: theme.spacing.lg,
   },
   cardLabel: {
-    fontFamily: theme.typography.fontMedium,
+    fontFamily: theme.typography.fontFamily, fontWeight: '500',
     fontSize: 12,
     color: theme.colors.textSecondary,
     letterSpacing: 1.5,
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   errorText: {
-    fontFamily: theme.typography.fontMedium,
+    fontFamily: theme.typography.fontFamily, fontWeight: '500',
     color: theme.colors.danger,
     fontSize: 12,
     marginBottom: theme.spacing.md,
@@ -154,11 +154,11 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
   },
   toggleBtnText: {
-    fontFamily: theme.typography.fontMedium,
+    fontFamily: theme.typography.fontFamily, fontWeight: '500',
     color: theme.colors.textSecondary,
   },
   input: {
-    fontFamily: theme.typography.fontMedium,
+    fontFamily: theme.typography.fontFamily, fontWeight: '500',
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.05)',
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.neonPurple,
   },
   categoryOptText: {
-    fontFamily: theme.typography.fontMedium,
+    fontFamily: theme.typography.fontFamily, fontWeight: '500',
     color: theme.colors.textSecondary,
     fontSize: 13,
   },
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
   },
   addBtnText: {
-    fontFamily: theme.typography.fontBold,
+    fontFamily: theme.typography.fontFamily, fontWeight: 'bold',
     color: '#FFFFFF',
     fontSize: 16,
     letterSpacing: 0.5,

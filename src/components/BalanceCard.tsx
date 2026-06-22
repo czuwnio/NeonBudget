@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cardLabel: {
-    fontFamily: theme.typography.fontMedium,
+    fontFamily: theme.typography.fontFamily, fontWeight: '500',
     fontSize: 12,
     color: 'rgba(255,255,255,0.7)',
     letterSpacing: 2,
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   balanceValue: {
-    fontFamily: theme.typography.fontBold,
+    fontFamily: theme.typography.fontFamily, fontWeight: 'bold',
     fontSize: 42,
     color: theme.colors.textPrimary,
     textAlign: 'center',
@@ -117,19 +117,19 @@ const styles = StyleSheet.create({
     marginHorizontal: theme.spacing.md,
   },
   totalLabel: {
-    fontFamily: theme.typography.fontMedium,
+    fontFamily: theme.typography.fontFamily, fontWeight: '500',
     fontSize: 10,
     color: 'rgba(255,255,255,0.6)',
     letterSpacing: 1,
     marginBottom: 4,
   },
   incomeValue: {
-    fontFamily: theme.typography.fontBold,
+    fontFamily: theme.typography.fontFamily, fontWeight: 'bold',
     color: theme.colors.neonGreen,
     fontSize: 18,
   },
   expenseValue: {
-    fontFamily: theme.typography.fontBold,
+    fontFamily: theme.typography.fontFamily, fontWeight: 'bold',
     color: theme.colors.danger,
     fontSize: 18,
   },

@@ -1,19 +1,21 @@
+import { Platform } from 'react-native';
+
+const fontName = Platform.OS === 'web' ? '"Outfit", system-ui, sans-serif' : undefined;
+
 export const theme = {
   colors: {
-    background: '#05050A', // Ultra deep space black
-    surfaceDark: 'rgba(20, 20, 30, 0.6)', // Translucent dark
+    background: '#05050A',
+    surfaceDark: 'rgba(20, 20, 30, 0.6)',
     glassBorder: 'rgba(255, 255, 255, 0.08)',
-    neonPurple: '#9D4EDD', // Rich vibrant purple
+    neonPurple: '#9D4EDD',
     neonPurpleLight: '#C77DFF',
-    neonGreen: '#38B000', // Premium success green
+    neonGreen: '#38B000',
     textPrimary: '#FFFFFF',
     textSecondary: '#A0A0B0',
     danger: '#FF4D4D',
   },
   typography: {
-    fontFamily: 'Inter_400Regular',
-    fontBold: 'Inter_700Bold',
-    fontMedium: 'Inter_500Medium',
+    fontFamily: fontName,
   },
   spacing: {
     xs: 4,
