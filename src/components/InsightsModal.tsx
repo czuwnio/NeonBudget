@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { X, TrendingUp, AlertTriangle, Calendar } from 'lucide-react-native';
+import { X, TrendingUp, AlertTriangle, Calendar, Star } from 'lucide-react-native';
 import { theme } from '../theme/theme';
 import { Transaction } from '../types';
 
@@ -33,6 +33,13 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({ visible, onClose, 
   const totalAllTimeExpense = allTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
   const totalNetWorth = totalAllTimeIncome - totalAllTimeExpense;
 
+  let rank = 'Początkujący';
+  let rankColor = theme.colors.textSecondary;
+  if (totalNetWorth >= 50000) { rank = 'Neonowy Król'; rankColor = '#FF00FF'; }
+  else if (totalNetWorth >= 10000) { rank = 'Złoty Inwestor'; rankColor = '#FFD700'; }
+  else if (totalNetWorth >= 5000) { rank = 'Srebrny Oszczędzacz'; rankColor = '#C0C0C0'; }
+  else if (totalNetWorth >= 1000) { rank = 'Brązowy Oszczędzacz'; rankColor = '#CD7F32'; }
+
   const formatPLN = (val: number) => `${val.toFixed(2)} PLN`;
 
   return (
@@ -59,6 +66,15 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({ visible, onClose, 
                 {formatPLN(totalNetWorth)}
               </Text>
               <Text style={styles.cardDesc}>Zgromadzony kapitał od początku</Text>
+            </View>
+
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
+                <Star size={20} color={rankColor} />
+                <Text style={styles.cardTitle}>Twój Status</Text>
+              </View>
+              <Text style={[styles.cardValue, { color: rankColor }]}>{rank}</Text>
+              <Text style={styles.cardDesc}>Osiągnięcie odblokowane na podstawie salda</Text>
             </View>
 
             <View style={styles.card}>

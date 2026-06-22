@@ -95,6 +95,18 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
           onChangeText={setAmount}
         />
 
+        <View style={styles.quickAmounts}>
+          {[10, 50, 100].map(val => (
+            <TouchableOpacity 
+              key={val} 
+              style={styles.quickAmtBtn}
+              onPress={() => setAmount(prev => (parseFloat(prev || '0') + val).toString())}
+            >
+              <Text style={styles.quickAmtText}>+{val}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
         <TextInput
           style={styles.input}
           placeholder="Opis (np. Zakupy, Czynsz)"
@@ -202,8 +214,28 @@ const styles = StyleSheet.create({
     color: theme.colors.textPrimary,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing.sm,
     fontSize: 16,
+  },
+  quickAmounts: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: theme.spacing.md,
+  },
+  quickAmtBtn: {
+    flex: 1,
+    paddingVertical: 8,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: theme.borderRadius.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    alignItems: 'center',
+  },
+  quickAmtText: {
+    color: theme.colors.textPrimary,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 14,
+    fontWeight: '500',
   },
   categoryPicker: {
     marginBottom: theme.spacing.lg,

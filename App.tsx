@@ -16,6 +16,8 @@ import { TransactionList } from './src/components/TransactionList';
 import { MonthSelector } from './src/components/MonthSelector';
 import { SettingsModal } from './src/components/SettingsModal';
 import { InsightsModal } from './src/components/InsightsModal';
+import { SavingsGoals, SavingsGoal } from './src/components/SavingsGoals';
+import { Subscriptions, Subscription } from './src/components/Subscriptions';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -38,6 +40,8 @@ export default function App() {
   const [expenseCategories, setExpenseCategories] = useState(['Jedzenie', 'Czynsz', 'Transport', 'Rachunki', 'Inne']);
   const [incomeCategories, setIncomeCategories] = useState(['Wypłata', 'Inne']);
   const [monthlyLimit, setMonthlyLimit] = useState<number>(0);
+  const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [isSettingsVisible, setSettingsVisible] = useState(false);
   const [isInsightsVisible, setInsightsVisible] = useState(false);
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
@@ -74,6 +78,18 @@ export default function App() {
         const storedLimit = await AsyncStorage.getItem('neon-budget-limit');
         if (storedLimit) {
           setMonthlyLimit(parseFloat(storedLimit));
+        }
+
+        const storedSavings = await AsyncStorage.getItem('neon-budget-savings');
+        if (storedSavings) {
+          const parsed = JSON.parse(storedSavings);
+          if (Array.isArray(parsed)) setSavingsGoals(parsed);
+        }
+
+        const storedSubs = await AsyncStorage.getItem('neon-budget-subs');
+        if (storedSubs) {
+          const parsed = JSON.parse(storedSubs);
+          if (Array.isArray(parsed)) setSubscriptions(parsed);
         }
       } catch (e) {}
     };
@@ -208,8 +224,61 @@ export default function App() {
   const performClear = async () => {
     queueRef.current = queueRef.current.then(async () => {
       await AsyncStorage.removeItem('neon-budget-transactions');
+      await AsyncStorage.removeItem('neon-budget-savings');
+      await AsyncStorage.removeItem('neon-budget-subs');
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setAllTransactions([]);
+      setSavingsGoals([]);
+      setSubscriptions([]);
+    });
+  };
+
+  const handleAddGoal = (name: string, target: number) => {
+    queueRef.current = queueRef.current.then(async () => {
+      const COLORS = ['#7B2CBF', '#00F0FF', '#39FF14', '#FF007F', '#FF9F1C'];
+      const newGoal: SavingsGoal = {
+        id: String(Date.now() + Math.random()),
+        name,
+        targetAmount: target,
+        currentAmount: 0,
+        color: COLORS[savingsGoals.length % COLORS.length]
+      };
+      const updated = [...savingsGoals, newGoal];
+      setSavingsGoals(updated);
+      await AsyncStorage.setItem('neon-budget-savings', JSON.stringify(updated));
+    });
+  };
+
+  const handleAddFunds = (id: string, amount: number) => {
+    queueRef.current = queueRef.current.then(async () => {
+      const updated = savingsGoals.map(g => g.id === id ? { ...g, currentAmount: g.currentAmount + amount } : g);
+      setSavingsGoals(updated);
+      await AsyncStorage.setItem('neon-budget-savings', JSON.stringify(updated));
+    });
+  };
+
+  const handleDeleteGoal = (id: string) => {
+    queueRef.current = queueRef.current.then(async () => {
+      const updated = savingsGoals.filter(g => g.id !== id);
+      setSavingsGoals(updated);
+      await AsyncStorage.setItem('neon-budget-savings', JSON.stringify(updated));
+    });
+  };
+
+  const handleAddSub = (name: string, amount: number) => {
+    queueRef.current = queueRef.current.then(async () => {
+      const newSub: Subscription = { id: String(Date.now() + Math.random()), name, amount };
+      const updated = [...subscriptions, newSub];
+      setSubscriptions(updated);
+      await AsyncStorage.setItem('neon-budget-subs', JSON.stringify(updated));
+    });
+  };
+
+  const handleDeleteSub = (id: string) => {
+    queueRef.current = queueRef.current.then(async () => {
+      const updated = subscriptions.filter(s => s.id !== id);
+      setSubscriptions(updated);
+      await AsyncStorage.setItem('neon-budget-subs', JSON.stringify(updated));
     });
   };
 
@@ -333,6 +402,19 @@ export default function App() {
             <CategoryChart 
               transactions={currentMonthTransactions} 
               totalExpense={totalExpense} 
+            />
+
+            <SavingsGoals 
+              goals={savingsGoals}
+              onAddGoal={handleAddGoal}
+              onAddFunds={handleAddFunds}
+              onDeleteGoal={handleDeleteGoal}
+            />
+
+            <Subscriptions 
+              subs={subscriptions}
+              onAddSub={handleAddSub}
+              onDeleteSub={handleDeleteSub}
             />
 
             <TransactionForm 
