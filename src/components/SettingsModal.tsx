@@ -17,6 +17,8 @@ interface SettingsModalProps {
   onImportData: (data: Transaction[]) => void;
   savedPin: string | null;
   onUpdatePin: (pin: string | null) => void;
+  onOpenGame?: () => void;
+  onWipeData?: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -31,6 +33,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onImportData,
   savedPin,
   onUpdatePin,
+  onOpenGame,
+  onWipeData,
 }) => {
   const [newExpenseCat, setNewExpenseCat] = useState('');
   const [newIncomeCat, setNewIncomeCat] = useState('');
@@ -129,9 +133,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const handleWipeData = () => {
     if (Platform.OS === 'web') {
       if (window.confirm('Czy na pewno chcesz usunąć WSZYSTKIE dane? Tej operacji nie można cofnąć.')) {
-        onImportData([]);
+        if (onWipeData) onWipeData();
         alert('Dane zostały bezpowrotnie wyczyszczone.');
       }
+    } else {
+      if (onWipeData) onWipeData();
     }
   };
 
@@ -241,32 +247,33 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>KOPIA ZAPASOWA (JSON)</Text>
+              <Text style={styles.sectionTitle}>ZARZĄDZANIE DANYMI</Text>
+              
               <TouchableOpacity style={styles.backupBtn} onPress={generateBackup}>
-                <Text style={styles.backupBtnText}>Generuj mój kod zapasowy</Text>
+                <Text style={styles.backupBtnText}>Generuj kod zapasowy (Eksport)</Text>
               </TouchableOpacity>
               
+              {backupCode ? (
+                <View style={styles.backupBox}>
+                  <Text style={styles.backupCode} selectable>{backupCode}</Text>
+                  <Text style={styles.helperText}>Skopiuj ten kod w bezpieczne miejsce.</Text>
+                </View>
+              ) : null}
+
               <TextInput
-                style={[styles.input, { height: 80, textAlignVertical: 'top', marginTop: 12 }]}
+                style={[styles.input, { marginTop: 16 }]}
+                placeholder="Wklej kod zapasowy"
+                placeholderTextColor={theme.colors.textSecondary}
                 value={backupCode}
                 onChangeText={setBackupCode}
-                multiline
-                numberOfLines={4}
-                placeholder="Wklej kod zapasowy tutaj..."
-                placeholderTextColor={theme.colors.textSecondary}
               />
               <TouchableOpacity style={[styles.backupBtn, { marginTop: 8 }]} onPress={loadBackup}>
-                <Text style={styles.backupBtnText}>Przywróć z wklejonego kodu</Text>
+                <Text style={styles.backupBtnText}>Wgraj kod zapasowy (Import)</Text>
               </TouchableOpacity>
-              <Text style={styles.helperText}>Skopiuj wygenerowany kod i zapisz go w bezpiecznym miejscu.</Text>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>EKSPORT DANYCH</Text>
-              <TouchableOpacity style={[styles.backupBtn, { backgroundColor: 'rgba(56, 176, 0, 0.15)', borderColor: 'rgba(56, 176, 0, 0.3)', borderWidth: 1 }]} onPress={downloadCSV}>
-                <Text style={[styles.backupBtnText, { color: theme.colors.neonGreen }]}>Pobierz arkusz CSV</Text>
+              
+              <TouchableOpacity style={[styles.backupBtn, { marginTop: 16, backgroundColor: theme.colors.neonPurple }]} onPress={downloadCSV}>
+                <Text style={styles.backupBtnText}>Pobierz plik CSV</Text>
               </TouchableOpacity>
-              <Text style={styles.helperText}>Wyeksportuj swoje dane, by móc otworzyć je w Excelu.</Text>
             </View>
 
             <View style={styles.section}>
@@ -276,6 +283,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </TouchableOpacity>
               <Text style={styles.helperText}>Bezpowrotnie usuwa wszystkie transakcje z pamięci urządzenia.</Text>
             </View>
+
+            {onOpenGame && (
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>SEKRETY</Text>
+                <TouchableOpacity style={[styles.backupBtn, { backgroundColor: 'rgba(57, 255, 20, 0.15)', borderColor: 'rgba(57, 255, 20, 0.3)', borderWidth: 1 }]} onPress={onOpenGame}>
+                  <Text style={[styles.backupBtnText, { color: theme.colors.neonGreen }]}>🎮 Uruchom Coin Clicker</Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
             <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
               <Text style={styles.saveBtnText}>Zapisz ustawienia</Text>

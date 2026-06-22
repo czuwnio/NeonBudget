@@ -789,22 +789,16 @@ function MainApp() {
                 visible={isSettingsVisible}
                 onClose={() => setSettingsVisible(false)}
                 monthlyLimit={monthlyLimit}
-                setMonthlyLimit={saveMonthlyLimit}
-                savingsGoals={savingsGoals}
-                setSavingsGoals={saveSavingsGoals}
-                subscriptions={subscriptions}
-                setSubscriptions={saveSubscriptions}
-                onWipeData={wipeAllData}
-                onOpenGame={() => { setSettingsVisible(false); setGameVisible(true); }}
                 expenseCategories={expenseCategories}
                 incomeCategories={incomeCategories}
-                onAddCategory={handleAddCategory}
-                onDeleteCategory={handleDeleteCategory}
+                onUpdateCategories={(type, cats) => type === 'expense' ? setExpenseCategories(cats) : setIncomeCategories(cats)}
                 onUpdateLimit={handleUpdateLimit}
                 allTransactions={allTransactions}
                 onImportData={handleImportData}
                 savedPin={savedPin}
                 onUpdatePin={handleUpdatePin}
+                onOpenGame={() => { setSettingsVisible(false); setGameVisible(true); }}
+                onWipeData={handleClearAll}
               />
             )}
 
