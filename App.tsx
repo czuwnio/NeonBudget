@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, ScrollView, Alert, LayoutAnimation, Platform, U
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Wallet, Download } from 'lucide-react-native';
+import { Wallet, Download, Settings } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { theme } from './src/theme/theme';
@@ -14,6 +14,7 @@ import { TransactionForm } from './src/components/TransactionForm';
 import { CategoryChart } from './src/components/CategoryChart';
 import { TransactionList } from './src/components/TransactionList';
 import { MonthSelector } from './src/components/MonthSelector';
+import { SettingsModal } from './src/components/SettingsModal';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -33,6 +34,10 @@ export default function App() {
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
   const [validationError, setValidationError] = useState('');
   
+  const [expenseCategories, setExpenseCategories] = useState(['Jedzenie', 'Czynsz', 'Transport', 'Rachunki', 'Inne']);
+  const [incomeCategories, setIncomeCategories] = useState(['Wypłata', 'Inne']);
+  const [isSettingsVisible, setSettingsVisible] = useState(false);
+
   const now = new Date();
   const initialMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   const [selectedMonthKey, setSelectedMonthKey] = useState(initialMonthKey);
@@ -40,19 +45,39 @@ export default function App() {
   const queueRef = useRef<Promise<void>>(Promise.resolve());
 
   useEffect(() => {
-    const loadTransactions = async () => {
+    const loadInitialData = async () => {
       try {
-        const stored = await AsyncStorage.getItem('neon-budget-transactions');
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed)) {
-            setAllTransactions(parsed);
-          }
+        const storedTx = await AsyncStorage.getItem('neon-budget-transactions');
+        if (storedTx) {
+          const parsed = JSON.parse(storedTx);
+          if (Array.isArray(parsed)) setAllTransactions(parsed);
+        }
+
+        const storedExpenseCats = await AsyncStorage.getItem('neon-budget-expense-cats');
+        if (storedExpenseCats) {
+          const parsed = JSON.parse(storedExpenseCats);
+          if (Array.isArray(parsed) && parsed.length > 0) setExpenseCategories(parsed);
+        }
+
+        const storedIncomeCats = await AsyncStorage.getItem('neon-budget-income-cats');
+        if (storedIncomeCats) {
+          const parsed = JSON.parse(storedIncomeCats);
+          if (Array.isArray(parsed) && parsed.length > 0) setIncomeCategories(parsed);
         }
       } catch (e) {}
     };
-    loadTransactions();
+    loadInitialData();
   }, []);
+
+  const handleUpdateCategories = async (type: 'expense' | 'income', newCats: string[]) => {
+    if (type === 'expense') {
+      setExpenseCategories(newCats);
+      await AsyncStorage.setItem('neon-budget-expense-cats', JSON.stringify(newCats));
+    } else {
+      setIncomeCategories(newCats);
+      await AsyncStorage.setItem('neon-budget-income-cats', JSON.stringify(newCats));
+    }
+  };
 
   const handleAddTransaction = (amount: string, description: string, type: 'income' | 'expense', category: string) => {
     const trimmedDesc = description.trim();
@@ -213,6 +238,9 @@ export default function App() {
             <View style={styles.header}>
               <Wallet size={28} color={theme.colors.neonPurpleLight} />
               <Text style={styles.title}>NeonBudget</Text>
+              <TouchableOpacity onPress={() => setSettingsVisible(true)} style={styles.settingsBtn}>
+                <Settings size={24} color={theme.colors.textSecondary} />
+              </TouchableOpacity>
             </View>
             <Text style={styles.subtitle}>Ekskluzywne zarządzanie finansami</Text>
 
@@ -235,6 +263,8 @@ export default function App() {
             <TransactionForm 
               onAddTransaction={handleAddTransaction} 
               validationError={validationError} 
+              expenseCategories={expenseCategories}
+              incomeCategories={incomeCategories}
             />
 
             <TransactionList 
@@ -252,6 +282,14 @@ export default function App() {
                 <Text style={styles.clearBtnText}>Wyczyść wszystko</Text>
               </TouchableOpacity>
             </View>
+
+            <SettingsModal
+              visible={isSettingsVisible}
+              onClose={() => setSettingsVisible(false)}
+              expenseCategories={expenseCategories}
+              incomeCategories={incomeCategories}
+              onUpdateCategories={handleUpdateCategories}
+            />
 
           </ScrollView>
         </SafeAreaView>
@@ -284,6 +322,11 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: theme.colors.textPrimary,
     letterSpacing: -0.5,
+  },
+  settingsBtn: {
+    position: 'absolute',
+    right: 0,
+    padding: 4,
   },
   subtitle: {
     fontFamily: theme.typography.fontFamily, fontWeight: '500',

@@ -40,7 +40,7 @@ const getCategoryIcon = (category: string, type: string) => {
     case 'czynsz': return <Home size={18} color="#2EC4B6" />;
     case 'transport': return <Car size={18} color="#4361EE" />;
     case 'rachunki': return <Zap size={18} color="#F72585" />;
-    default: return <PlusCircle size={18} color={theme.colors.textSecondary} />;
+    default: return <PlusCircle size={18} color={theme.colors.neonPurpleLight} />;
   }
 };
 

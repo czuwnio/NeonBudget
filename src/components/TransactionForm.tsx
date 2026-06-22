@@ -7,21 +7,26 @@ import { theme } from '../theme/theme';
 interface TransactionFormProps {
   onAddTransaction: (amount: string, description: string, type: 'income' | 'expense', category: string) => void;
   validationError: string;
+  expenseCategories: string[];
+  incomeCategories: string[];
 }
 
-export const TransactionForm: React.FC<TransactionFormProps> = ({ onAddTransaction, validationError }) => {
+export const TransactionForm: React.FC<TransactionFormProps> = ({ 
+  onAddTransaction, 
+  validationError,
+  expenseCategories,
+  incomeCategories
+}) => {
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
-  const [type, setType] = useState<'income' | 'expense'>('expense'); // Default to expense
-  const [category, setCategory] = useState('Jedzenie');
+  const [type, setType] = useState<'income' | 'expense'>('expense');
+  const [category, setCategory] = useState(expenseCategories[0] || 'Jedzenie');
 
-  const categories = type === 'income'
-    ? ['Wypłata', 'Inne']
-    : ['Jedzenie', 'Czynsz', 'Transport', 'Rachunki', 'Inne'];
+  const currentCategories = type === 'income' ? incomeCategories : expenseCategories;
 
   const handleTypeChange = (newType: 'income' | 'expense') => {
     setType(newType);
-    setCategory(newType === 'income' ? 'Wypłata' : 'Jedzenie');
+    setCategory(newType === 'income' ? (incomeCategories[0] || 'Wypłata') : (expenseCategories[0] || 'Jedzenie'));
   };
 
   const submit = () => {
@@ -75,7 +80,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({ onAddTransacti
 
         <View style={styles.categoryPicker}>
           <View style={styles.categoryOptions}>
-            {categories.map(cat => (
+            {currentCategories.map(cat => (
               <TouchableOpacity
                 key={cat}
                 style={[styles.categoryOpt, category === cat && styles.categoryOptActive]}
