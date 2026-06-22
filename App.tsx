@@ -500,8 +500,11 @@ export default function App() {
           <StatusBar style="light" />
           <ScrollView contentContainerStyle={styles.contentContainer}>
             <View style={styles.header}>
-              <Wallet size={28} color={theme.colors.neonPurpleLight} />
-              <Text style={styles.title}>NeonBudget</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Wallet size={28} color={theme.colors.neonPurpleLight} style={{ marginRight: 8 }} />
+                <Text style={styles.title}>NeonBudget</Text>
+                {userLevel >= 5 && <Text style={{ color: theme.colors.neonPurpleLight, fontWeight: 'bold', marginLeft: 8, fontSize: 10, borderWidth: 1, borderColor: theme.colors.neonPurpleLight, paddingHorizontal: 4, paddingVertical: 2, borderRadius: 4, fontFamily: theme.typography.fontFamily }}>PRO</Text>}
+              </View>
               <View style={styles.headerRight}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 8, backgroundColor: 'rgba(157, 78, 221, 0.15)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(157, 78, 221, 0.3)' }}>
                   <Star size={14} color={theme.colors.neonPurpleLight} />
