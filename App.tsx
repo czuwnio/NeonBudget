@@ -35,7 +35,39 @@ if (Platform.OS === 'web') {
   document.head.appendChild(style);
 }
 
+class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: Error | null}> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#05050A', padding: 20 }}>
+          <Text style={{ color: 'red', fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>CRASH:</Text>
+          <Text style={{ color: '#fff', fontSize: 14 }}>{this.state.error?.message}</Text>
+          <Text style={{ color: '#888', fontSize: 10, marginTop: 10 }}>{this.state.error?.stack}</Text>
+        </View>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function App() {
+  return (
+    <ErrorBoundary>
+      <MainApp />
+    </ErrorBoundary>
+  );
+}
+
+function MainApp() {
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
   const [validationError, setValidationError] = useState('');
   
