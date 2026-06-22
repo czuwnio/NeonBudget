@@ -50,6 +50,8 @@ export default function App() {
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showLevelUp, setShowLevelUp] = useState(false);
+  const [isGameVisible, setGameVisible] = useState(false);
+  const [gameCoins, setGameCoins] = useState(0);
   const prevLevelRef = useRef(1);
 
   const now = new Date();
@@ -683,6 +685,18 @@ export default function App() {
               </View>
             )}
 
+            {isGameVisible && (
+              <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.95)', zIndex: 10000, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ color: theme.colors.neonGreen, fontSize: 40, fontWeight: 'bold', marginBottom: 60, fontFamily: theme.typography.fontFamily }}>Zebrane Monety: {gameCoins}</Text>
+                <TouchableOpacity onPress={() => setGameCoins(c => c + 1)} style={{ backgroundColor: theme.colors.neonPurple, width: 160, height: 160, borderRadius: 80, justifyContent: 'center', alignItems: 'center', shadowColor: theme.colors.neonPurple, shadowOpacity: 1, shadowRadius: 30 }}>
+                  <Text style={{ fontSize: 60 }}>🪙</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => { setGameVisible(false); setGameCoins(0); }} style={{ marginTop: 80, padding: 15, borderWidth: 1, borderColor: '#fff', borderRadius: 8 }}>
+                  <Text style={{ color: '#fff', fontSize: 18 }}>Powrót do budżetu</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
             <TransactionForm 
               onSubmitTransaction={handleSubmitTransaction} 
               validationError={validationError} 
@@ -738,20 +752,29 @@ export default function App() {
               </TouchableOpacity>
             </View>
 
-            <SettingsModal 
-              visible={isSettingsVisible} 
-              onClose={() => setSettingsVisible(false)}
-              expenseCategories={expenseCategories}
-              incomeCategories={incomeCategories}
-              onAddCategory={handleAddCategory}
-              onDeleteCategory={handleDeleteCategory}
-              monthlyLimit={monthlyLimit}
-              onUpdateLimit={handleUpdateLimit}
-              allTransactions={allTransactions}
-              onImportData={handleImportData}
-              savedPin={savedPin}
-              onUpdatePin={handleUpdatePin}
-            />
+            {isSettingsVisible && (
+              <SettingsModal
+                visible={isSettingsVisible}
+                onClose={() => setSettingsVisible(false)}
+                monthlyLimit={monthlyLimit}
+                setMonthlyLimit={saveMonthlyLimit}
+                savingsGoals={savingsGoals}
+                setSavingsGoals={saveSavingsGoals}
+                subscriptions={subscriptions}
+                setSubscriptions={saveSubscriptions}
+                onWipeData={wipeAllData}
+                onOpenGame={() => { setSettingsVisible(false); setGameVisible(true); }}
+                expenseCategories={expenseCategories}
+                incomeCategories={incomeCategories}
+                onAddCategory={handleAddCategory}
+                onDeleteCategory={handleDeleteCategory}
+                onUpdateLimit={handleUpdateLimit}
+                allTransactions={allTransactions}
+                onImportData={handleImportData}
+                savedPin={savedPin}
+                onUpdatePin={handleUpdatePin}
+              />
+            )}
 
             <InsightsModal
               visible={isInsightsVisible}
