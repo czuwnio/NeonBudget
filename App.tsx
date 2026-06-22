@@ -331,6 +331,15 @@ export default function App() {
     });
   };
 
+  const handlePaySub = (sub: Subscription) => {
+    handleSubmitTransaction(String(sub.amount), `Subskrypcja: ${sub.name}`, 'expense', 'Rachunki');
+    if (Platform.OS !== 'web') {
+      Alert.alert('Opłacono', `Dodano wydatek za: ${sub.name}`);
+    } else {
+      window.alert(`Dodano wydatek za: ${sub.name}`);
+    }
+  };
+
   const handleExportCSV = () => {
     if (allTransactions.length === 0) {
       Alert.alert('Brak danych', 'Nie masz żadnych transakcji do wyeksportowania.');
@@ -485,6 +494,7 @@ export default function App() {
               subs={subscriptions}
               onAddSub={handleAddSub}
               onDeleteSub={handleDeleteSub}
+              onPaySub={handlePaySub}
             />
 
             <TransactionForm 
