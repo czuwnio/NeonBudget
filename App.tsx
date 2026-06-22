@@ -18,6 +18,7 @@ import { SettingsModal } from './src/components/SettingsModal';
 import { InsightsModal } from './src/components/InsightsModal';
 import { SavingsGoals, SavingsGoal } from './src/components/SavingsGoals';
 import { Subscriptions, Subscription } from './src/components/Subscriptions';
+import { DateStrip } from './src/components/DateStrip';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -51,6 +52,7 @@ export default function App() {
   const [selectedMonthKey, setSelectedMonthKey] = useState(initialMonthKey);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'expense' | 'income'>('all');
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const queueRef = useRef<Promise<void>>(Promise.resolve());
 
@@ -326,13 +328,19 @@ export default function App() {
     return allTransactions.filter(t => {
       const d = new Date(t.date);
       const tMonthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      const matchesMonth = tMonthKey === selectedMonthKey;
+      return tMonthKey === selectedMonthKey;
+    });
+  }, [allTransactions, selectedMonthKey]);
+
+  const displayedTransactions = useMemo(() => {
+    return currentMonthTransactions.filter(t => {
       const matchesSearch = t.description.toLowerCase().includes(searchQuery.toLowerCase()) || 
                             t.category.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesFilter = filterType === 'all' || t.type === filterType;
-      return matchesMonth && matchesSearch && matchesFilter;
+      const matchesDate = selectedDate ? t.date.startsWith(selectedDate) : true;
+      return matchesSearch && matchesFilter && matchesDate;
     });
-  }, [allTransactions, selectedMonthKey, searchQuery, filterType]);
+  }, [currentMonthTransactions, searchQuery, filterType, selectedDate]);
 
   const prevMonthKey = useMemo(() => {
     const [y, m] = selectedMonthKey.split('-');
@@ -400,8 +408,15 @@ export default function App() {
             />
 
             <CategoryChart 
-              transactions={currentMonthTransactions} 
-              totalExpense={totalExpense} 
+              transactions={displayedTransactions} 
+              totalExpense={displayedTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)} 
+            />
+
+            <DateStrip 
+              selectedMonthKey={selectedMonthKey}
+              transactions={currentMonthTransactions}
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
             />
 
             <SavingsGoals 
@@ -450,7 +465,7 @@ export default function App() {
             </View>
 
             <TransactionList 
-              transactions={currentMonthTransactions} 
+              transactions={displayedTransactions} 
               onDeleteTransaction={handleDeleteTransaction} 
               onEditTransaction={handleEditTransaction}
             />
