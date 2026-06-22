@@ -4,6 +4,9 @@ import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Wallet } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+
+import { useFonts, Inter_400Regular, Inter_500Medium, Inter_700Bold } from '@expo-google-fonts/inter';
 
 import { theme } from './src/theme/theme';
 import { Transaction } from './src/types';
@@ -19,6 +22,12 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 }
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_700Bold,
+  });
+
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
   const [validationError, setValidationError] = useState('');
   
@@ -26,7 +35,6 @@ export default function App() {
   const initialMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   const [selectedMonthKey, setSelectedMonthKey] = useState(initialMonthKey);
 
-  // Queue to handle rapid/parallel state updates safely
   const queueRef = useRef<Promise<void>>(Promise.resolve());
 
   useEffect(() => {
@@ -39,9 +47,7 @@ export default function App() {
             setAllTransactions(parsed);
           }
         }
-      } catch (e) {
-        setAllTransactions([]);
-      }
+      } catch (e) {}
     };
     loadTransactions();
   }, []);
@@ -68,7 +74,7 @@ export default function App() {
       description: trimmedDesc,
       type,
       category,
-      date: new Date().toISOString(), // Always saves current real date
+      date: new Date().toISOString(),
     };
 
     queueRef.current = queueRef.current.then(async () => {
@@ -88,11 +94,9 @@ export default function App() {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setAllTransactions(updatedTransactions);
         
-        // Auto switch to current month if we add a transaction today
         const now = new Date();
         const nowKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         setSelectedMonthKey(nowKey);
-
       } catch (err) {
         Alert.alert('Błąd', 'Nie udało się zapisać transakcji');
       }
@@ -147,7 +151,6 @@ export default function App() {
     });
   };
 
-  // Filter transactions for the selected month
   const currentMonthTransactions = useMemo(() => {
     return allTransactions.filter(t => {
       const d = new Date(t.date);
@@ -156,7 +159,6 @@ export default function App() {
     });
   }, [allTransactions, selectedMonthKey]);
 
-  // Calculations for selected month
   const totalIncome = currentMonthTransactions
     .filter(t => t.type === 'income')
     .reduce((sum, t) => sum + t.amount, 0);
@@ -167,51 +169,60 @@ export default function App() {
 
   const balance = totalIncome - totalExpense;
 
+  if (!fontsLoaded) {
+    return <View style={{ flex: 1, backgroundColor: '#05050A' }} />;
+  }
+
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.container} testID="app-container">
-        <StatusBar style="light" />
-        <ScrollView contentContainerStyle={styles.contentContainer} testID="app-content">
-          <View style={styles.header}>
-            <Wallet size={32} color={theme.colors.neonPurple} />
-            <Text style={styles.title} testID="app-title">NeonBudget</Text>
-          </View>
-          <Text style={styles.subtitle} testID="app-subtitle">Śledź swoje bogactwo w neonowym świetle</Text>
+      <LinearGradient
+        colors={['#0f0518', '#05050A', '#020205']}
+        style={styles.container}
+      >
+        <SafeAreaView style={styles.safeArea}>
+          <StatusBar style="light" />
+          <ScrollView contentContainerStyle={styles.contentContainer}>
+            <View style={styles.header}>
+              <Wallet size={28} color={theme.colors.neonPurpleLight} />
+              <Text style={styles.title}>NeonBudget</Text>
+            </View>
+            <Text style={styles.subtitle}>Ekskluzywne zarządzanie finansami</Text>
 
-          <MonthSelector 
-            currentMonthKey={selectedMonthKey} 
-            onMonthChange={setSelectedMonthKey} 
-          />
+            <MonthSelector 
+              currentMonthKey={selectedMonthKey} 
+              onMonthChange={setSelectedMonthKey} 
+            />
 
-          <BalanceCard 
-            balance={balance} 
-            totalIncome={totalIncome} 
-            totalExpense={totalExpense} 
-          />
+            <BalanceCard 
+              balance={balance} 
+              totalIncome={totalIncome} 
+              totalExpense={totalExpense} 
+            />
 
-          <CategoryChart 
-            transactions={currentMonthTransactions} 
-            totalExpense={totalExpense} 
-          />
+            <CategoryChart 
+              transactions={currentMonthTransactions} 
+              totalExpense={totalExpense} 
+            />
 
-          <TransactionForm 
-            onAddTransaction={handleAddTransaction} 
-            validationError={validationError} 
-          />
+            <TransactionForm 
+              onAddTransaction={handleAddTransaction} 
+              validationError={validationError} 
+            />
 
-          <TransactionList 
-            transactions={currentMonthTransactions} 
-            onDeleteTransaction={handleDeleteTransaction} 
-          />
+            <TransactionList 
+              transactions={currentMonthTransactions} 
+              onDeleteTransaction={handleDeleteTransaction} 
+            />
 
-          <View style={styles.dangerZone}>
-            <TouchableOpacity onPress={handleClearAll} style={styles.clearBtn}>
-              <Text style={styles.clearBtnText}>Wyczyść wszystkie dane (Zresetuj)</Text>
-            </TouchableOpacity>
-          </View>
+            <View style={styles.dangerZone}>
+              <TouchableOpacity onPress={handleClearAll} style={styles.clearBtn}>
+                <Text style={styles.clearBtnText}>Wyczyść wszystkie dane</Text>
+              </TouchableOpacity>
+            </View>
 
-        </ScrollView>
-      </SafeAreaView>
+          </ScrollView>
+        </SafeAreaView>
+      </LinearGradient>
     </SafeAreaProvider>
   );
 }
@@ -219,46 +230,52 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+  },
+  safeArea: {
+    flex: 1,
   },
   contentContainer: {
-    padding: 20,
+    paddingHorizontal: 24,
+    paddingTop: 10,
+    paddingBottom: 40,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 5,
-    gap: 10,
+    marginBottom: 4,
+    gap: 12,
   },
   title: {
+    fontFamily: theme.typography.fontBold,
     fontSize: 28,
-    fontWeight: 'bold',
-    color: theme.colors.neonPurple,
+    color: theme.colors.textPrimary,
+    letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 14,
+    fontFamily: theme.typography.fontMedium,
+    fontSize: 13,
     color: theme.colors.textSecondary,
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 32,
+    letterSpacing: 0.5,
   },
   dangerZone: {
-    marginTop: 10,
-    marginBottom: 40,
+    marginTop: 20,
     alignItems: 'center',
   },
   clearBtn: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
     borderWidth: 1,
-    borderColor: '#FF6B6B',
-    borderRadius: 8,
-    backgroundColor: 'rgba(255, 107, 107, 0.1)',
+    borderColor: 'rgba(255, 77, 77, 0.2)',
+    borderRadius: 100,
+    backgroundColor: 'rgba(255, 77, 77, 0.05)',
   },
   clearBtnText: {
-    color: '#FF6B6B',
+    fontFamily: theme.typography.fontMedium,
+    color: theme.colors.danger,
     fontSize: 12,
-    fontWeight: 'bold',
+    letterSpacing: 1,
   }
 });

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { PlusCircle, ArrowUpRight, ArrowDownRight } from 'lucide-react-native';
 import { theme } from '../theme/theme';
 
 interface TransactionFormProps {
@@ -10,8 +12,8 @@ interface TransactionFormProps {
 export const TransactionForm: React.FC<TransactionFormProps> = ({ onAddTransaction, validationError }) => {
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
-  const [type, setType] = useState<'income' | 'expense'>('income');
-  const [category, setCategory] = useState('Wypłata');
+  const [type, setType] = useState<'income' | 'expense'>('expense'); // Default to expense
+  const [category, setCategory] = useState('Jedzenie');
 
   const categories = type === 'income'
     ? ['Wypłata', 'Inne']
@@ -24,188 +26,190 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({ onAddTransacti
 
   const submit = () => {
     onAddTransaction(amount, description, type, category);
-    // Note: App.tsx will manage clearing the form on successful save
   };
 
   return (
-    <View style={styles.formCard}>
-      <Text style={styles.cardLabel}>NOWA TRANSAKCJA</Text>
+    <View style={styles.container}>
+      <BlurView intensity={20} tint="dark" style={styles.glassCard}>
+        <Text style={styles.cardLabel}>NOWA TRANSAKCJA</Text>
 
-      {validationError ? (
-        <Text accessibilityLabel="validation-error" style={styles.errorText}>
-          {validationError}
-        </Text>
-      ) : null}
+        {validationError ? (
+          <Text accessibilityLabel="validation-error" style={styles.errorText}>
+            {validationError}
+          </Text>
+        ) : null}
 
-      <View style={styles.toggleRow}>
-        <TouchableOpacity
-          accessibilityLabel="type-toggle-income"
-          style={[styles.toggleBtn, type === 'income' && styles.toggleBtnActiveIncome]}
-          onPress={() => handleTypeChange('income')}
-        >
-          <Text style={styles.toggleBtnText}>Przychód</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          accessibilityLabel="type-toggle-expense"
-          style={[styles.toggleBtn, type === 'expense' && styles.toggleBtnActiveExpense]}
-          onPress={() => handleTypeChange('expense')}
-        >
-          <Text style={styles.toggleBtnText}>Wydatek</Text>
-        </TouchableOpacity>
-      </View>
-
-      <TextInput
-        accessibilityLabel="amount-input"
-        style={styles.input}
-        placeholder="Kwota (np. 150.50)"
-        placeholderTextColor={theme.colors.textSecondary}
-        keyboardType="numeric"
-        value={amount}
-        onChangeText={setAmount}
-      />
-
-      <TextInput
-        accessibilityLabel="description-input"
-        style={styles.input}
-        placeholder="Opis (np. Zakupy, Czynsz)"
-        placeholderTextColor={theme.colors.textSecondary}
-        value={description}
-        onChangeText={setDescription}
-      />
-
-      <View style={styles.categoryPicker}>
-        <TouchableOpacity accessibilityLabel="category-picker-button" style={styles.pickerButton}>
-          <Text style={styles.pickerButtonText}>Kategoria: {category}</Text>
-        </TouchableOpacity>
-        <View style={styles.categoryOptions}>
-          {categories.map(cat => (
-            <TouchableOpacity
-              key={cat}
-              accessibilityLabel={`category-option-${cat}`}
-              style={[styles.categoryOpt, category === cat && styles.categoryOptActive]}
-              onPress={() => setCategory(cat)}
-            >
-              <Text style={styles.categoryOptText}>{cat}</Text>
-            </TouchableOpacity>
-          ))}
+        <View style={styles.toggleRow}>
+          <TouchableOpacity
+            style={[styles.toggleBtn, type === 'income' && styles.toggleBtnActiveIncome]}
+            onPress={() => handleTypeChange('income')}
+          >
+            <ArrowUpRight size={16} color={type === 'income' ? '#FFFFFF' : theme.colors.textSecondary} style={{ marginRight: 6 }} />
+            <Text style={[styles.toggleBtnText, type === 'income' && { color: '#FFFFFF' }]}>Przychód</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.toggleBtn, type === 'expense' && styles.toggleBtnActiveExpense]}
+            onPress={() => handleTypeChange('expense')}
+          >
+            <ArrowDownRight size={16} color={type === 'expense' ? '#FFFFFF' : theme.colors.textSecondary} style={{ marginRight: 6 }} />
+            <Text style={[styles.toggleBtnText, type === 'expense' && { color: '#FFFFFF' }]}>Wydatek</Text>
+          </TouchableOpacity>
         </View>
-      </View>
 
-      <TouchableOpacity
-        accessibilityLabel="add-transaction-button"
-        style={styles.addBtn}
-        onPress={submit}
-      >
-        <Text style={styles.addBtnText}>Dodaj transakcję</Text>
-      </TouchableOpacity>
+        <TextInput
+          style={styles.input}
+          placeholder="Kwota (np. 150.50)"
+          placeholderTextColor={theme.colors.textSecondary}
+          keyboardType="numeric"
+          value={amount}
+          onChangeText={setAmount}
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder="Opis (np. Zakupy, Czynsz)"
+          placeholderTextColor={theme.colors.textSecondary}
+          value={description}
+          onChangeText={setDescription}
+        />
+
+        <View style={styles.categoryPicker}>
+          <View style={styles.categoryOptions}>
+            {categories.map(cat => (
+              <TouchableOpacity
+                key={cat}
+                style={[styles.categoryOpt, category === cat && styles.categoryOptActive]}
+                onPress={() => setCategory(cat)}
+              >
+                <Text style={[styles.categoryOptText, category === cat && { color: '#FFFFFF', fontFamily: theme.typography.fontBold }]}>
+                  {cat}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        <TouchableOpacity style={styles.addBtn} onPress={submit}>
+          <PlusCircle size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+          <Text style={styles.addBtnText}>Dodaj transakcję</Text>
+        </TouchableOpacity>
+      </BlurView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  formCard: {
-    backgroundColor: theme.colors.surfaceDark,
-    borderRadius: 12,
-    padding: 20,
+  container: {
+    borderRadius: theme.borderRadius.xl,
+    overflow: 'hidden',
+    marginBottom: theme.spacing.lg,
     borderWidth: 1,
     borderColor: theme.colors.glassBorder,
-    marginBottom: 15,
+    backgroundColor: theme.colors.surfaceDark,
+  },
+  glassCard: {
+    padding: theme.spacing.lg,
   },
   cardLabel: {
+    fontFamily: theme.typography.fontMedium,
     fontSize: 12,
     color: theme.colors.textSecondary,
-    fontWeight: 'bold',
-    letterSpacing: 1,
-    marginBottom: 8,
+    letterSpacing: 1.5,
+    marginBottom: theme.spacing.md,
+    textTransform: 'uppercase',
   },
   errorText: {
-    color: '#FF6B6B',
+    fontFamily: theme.typography.fontMedium,
+    color: theme.colors.danger,
     fontSize: 12,
-    marginBottom: 10,
-    fontWeight: 'bold',
+    marginBottom: theme.spacing.md,
   },
   toggleRow: {
     flexDirection: 'row',
-    marginBottom: 15,
-    borderRadius: 8,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: theme.colors.glassBorder,
+    marginBottom: theme.spacing.md,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    borderRadius: theme.borderRadius.md,
+    padding: 4,
   },
   toggleBtn: {
     flex: 1,
-    paddingVertical: 10,
+    flexDirection: 'row',
+    paddingVertical: 12,
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    justifyContent: 'center',
+    borderRadius: theme.borderRadius.sm,
   },
   toggleBtnActiveIncome: {
-    backgroundColor: 'rgba(74, 222, 128, 0.2)',
+    backgroundColor: theme.colors.neonGreen,
+    shadowColor: theme.colors.neonGreen,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
   toggleBtnActiveExpense: {
-    backgroundColor: 'rgba(255, 107, 107, 0.2)',
+    backgroundColor: theme.colors.danger,
+    shadowColor: theme.colors.danger,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
   toggleBtnText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+    fontFamily: theme.typography.fontMedium,
+    color: theme.colors.textSecondary,
   },
   input: {
-    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    fontFamily: theme.typography.fontMedium,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
     borderWidth: 1,
-    borderColor: theme.colors.glassBorder,
-    borderRadius: 8,
-    color: '#FFFFFF',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 12,
+    borderColor: 'rgba(255,255,255,0.05)',
+    borderRadius: theme.borderRadius.md,
+    color: theme.colors.textPrimary,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    marginBottom: theme.spacing.md,
+    fontSize: 16,
   },
   categoryPicker: {
-    marginBottom: 15,
-  },
-  pickerButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    marginBottom: 8,
-  },
-  pickerButtonText: {
-    color: '#FFFFFF',
-    fontSize: 12,
+    marginBottom: theme.spacing.lg,
   },
   categoryOptions: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 6,
+    gap: 8,
   },
   categoryOpt: {
-    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
     borderWidth: 1,
-    borderColor: theme.colors.glassBorder,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 15,
+    borderColor: 'rgba(255,255,255,0.05)',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
   },
   categoryOptActive: {
-    backgroundColor: theme.colors.neonPurple,
+    backgroundColor: 'rgba(157, 78, 221, 0.2)',
     borderColor: theme.colors.neonPurple,
   },
   categoryOptText: {
-    color: '#FFFFFF',
-    fontSize: 11,
+    fontFamily: theme.typography.fontMedium,
+    color: theme.colors.textSecondary,
+    fontSize: 13,
   },
   addBtn: {
+    flexDirection: 'row',
     backgroundColor: theme.colors.neonPurple,
-    borderRadius: 8,
-    paddingVertical: 12,
+    borderRadius: theme.borderRadius.md,
+    paddingVertical: 16,
+    justifyContent: 'center',
     alignItems: 'center',
     shadowColor: theme.colors.neonPurple,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
   },
   addBtnText: {
+    fontFamily: theme.typography.fontBold,
     color: '#FFFFFF',
-    fontWeight: 'bold',
     fontSize: 16,
+    letterSpacing: 0.5,
   },
 });

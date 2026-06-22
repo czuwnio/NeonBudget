@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { theme } from '../theme/theme';
 import { Transaction } from '../types';
 
@@ -22,72 +23,79 @@ export const CategoryChart: React.FC<CategoryChartProps> = ({ transactions, tota
   );
 
   return (
-    <View accessibilityLabel="category-chart" style={styles.chartCard}>
-      <Text style={styles.cardLabel}>STRUKTURA WYDATKÓW</Text>
-      {totalExpense === 0 ? (
-        <Text style={styles.noChartText}>Brak danych o wydatkach</Text>
-      ) : (
-        <View style={styles.chartContainer}>
-          {sortedCategories.map(cat => {
-            const amountVal = categoryBreakdown[cat];
-            const pct = (amountVal / totalExpense) * 100;
-            return (
-              <View key={cat} style={styles.barRow}>
-                <View style={styles.barLabelRow}>
-                  <Text style={styles.barLabelText}>{cat}</Text>
-                  <Text style={styles.barValueText}>{pct.toFixed(1)}%</Text>
+    <View style={styles.container}>
+      <BlurView intensity={20} tint="dark" style={styles.glassCard}>
+        <Text style={styles.cardLabel}>STRUKTURA WYDATKÓW</Text>
+        {totalExpense === 0 ? (
+          <Text style={styles.noChartText}>Brak danych o wydatkach</Text>
+        ) : (
+          <View style={styles.chartContainer}>
+            {sortedCategories.map(cat => {
+              const amountVal = categoryBreakdown[cat];
+              const pct = (amountVal / totalExpense) * 100;
+              return (
+                <View key={cat} style={styles.barRow}>
+                  <View style={styles.barLabelRow}>
+                    <Text style={styles.barLabelText}>{cat}</Text>
+                    <Text style={styles.barValueText}>{pct.toFixed(1)}%</Text>
+                  </View>
+                  <View style={styles.progressBarBackground}>
+                    <View style={[styles.progressBarFill, { width: `${pct}%` }]} />
+                  </View>
                 </View>
-                <View style={styles.progressBarBackground}>
-                  <View style={[styles.progressBarFill, { width: `${pct}%` }]} />
-                </View>
-              </View>
-            );
-          })}
-        </View>
-      )}
+              );
+            })}
+          </View>
+        )}
+      </BlurView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  chartCard: {
-    backgroundColor: theme.colors.surfaceDark,
-    borderRadius: 12,
-    padding: 20,
+  container: {
+    borderRadius: theme.borderRadius.xl,
+    overflow: 'hidden',
+    marginBottom: theme.spacing.lg,
     borderWidth: 1,
     borderColor: theme.colors.glassBorder,
-    marginBottom: 15,
+    backgroundColor: theme.colors.surfaceDark,
+  },
+  glassCard: {
+    padding: theme.spacing.lg,
   },
   cardLabel: {
+    fontFamily: theme.typography.fontMedium,
     fontSize: 12,
     color: theme.colors.textSecondary,
-    fontWeight: 'bold',
-    letterSpacing: 1,
-    marginBottom: 15,
+    letterSpacing: 1.5,
+    marginBottom: theme.spacing.md,
+    textTransform: 'uppercase',
   },
   noChartText: {
+    fontFamily: theme.typography.fontMedium,
     color: theme.colors.textSecondary,
-    fontStyle: 'italic',
     textAlign: 'center',
-    marginTop: 10,
+    marginVertical: theme.spacing.lg,
   },
   chartContainer: {
-    marginTop: 5,
+    marginTop: 4,
   },
   barRow: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   barLabelRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   barLabelText: {
-    color: '#FFFFFF',
+    fontFamily: theme.typography.fontBold,
+    color: theme.colors.textPrimary,
     fontSize: 13,
-    fontWeight: '500',
   },
   barValueText: {
+    fontFamily: theme.typography.fontBold,
     color: theme.colors.textSecondary,
     fontSize: 12,
   },
@@ -101,5 +109,9 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: theme.colors.neonPurple,
     borderRadius: 4,
+    shadowColor: theme.colors.neonPurple,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 5,
   },
 });

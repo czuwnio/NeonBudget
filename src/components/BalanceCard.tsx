@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { theme } from '../theme/theme';
 
 interface BalanceCardProps {
@@ -25,78 +27,110 @@ const formatValue = (val: number, isIncome: boolean = false, isExpense: boolean 
 
 export const BalanceCard: React.FC<BalanceCardProps> = ({ balance, totalIncome, totalExpense }) => {
   return (
-    <View style={styles.card} testID="balance-card">
-      <Text style={styles.cardLabel}>OBECNE SALDO</Text>
-      <Text style={styles.balanceValue} testID="balance-value" accessibilityLabel="total-balance">
-        {formatValue(balance)}
-      </Text>
+    <View style={styles.container}>
+      <LinearGradient
+        colors={['#3C096C', '#10002B']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.gradientBg}
+      />
+      <BlurView intensity={20} tint="dark" style={styles.glassCard}>
+        <Text style={styles.cardLabel}>OBECNE SALDO</Text>
+        <Text style={styles.balanceValue}>
+          {formatValue(balance)}
+        </Text>
 
-      <View style={styles.totalsRow}>
-        <View style={styles.totalCol}>
-          <Text style={styles.totalLabel}>PRZYCHODY</Text>
-          <Text style={styles.incomeValue} accessibilityLabel="total-income">
-            {formatValue(totalIncome, true)}
-          </Text>
+        <View style={styles.totalsRow}>
+          <View style={styles.totalCol}>
+            <Text style={styles.totalLabel}>PRZYCHODY</Text>
+            <Text style={styles.incomeValue}>
+              {formatValue(totalIncome, true)}
+            </Text>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.totalCol}>
+            <Text style={styles.totalLabel}>WYDATKI</Text>
+            <Text style={styles.expenseValue}>
+              {formatValue(totalExpense, false, true)}
+            </Text>
+          </View>
         </View>
-        <View style={styles.totalCol}>
-          <Text style={styles.totalLabel}>WYDATKI</Text>
-          <Text style={styles.expenseValue} accessibilityLabel="total-expense">
-            {formatValue(totalExpense, false, true)}
-          </Text>
-        </View>
-      </View>
+      </BlurView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: theme.colors.surfaceDark,
-    borderRadius: 12,
-    padding: 20,
+  container: {
+    borderRadius: theme.borderRadius.lg,
+    overflow: 'hidden',
+    marginBottom: theme.spacing.lg,
     borderWidth: 1,
-    borderColor: theme.colors.glassBorder,
-    marginBottom: 15,
+    borderColor: 'rgba(157, 78, 221, 0.3)', // Subtle purple glow border
+    shadowColor: theme.colors.neonPurple,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  gradientBg: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  glassCard: {
+    padding: theme.spacing.lg,
+    alignItems: 'center',
   },
   cardLabel: {
+    fontFamily: theme.typography.fontMedium,
     fontSize: 12,
-    color: theme.colors.textSecondary,
-    fontWeight: 'bold',
-    letterSpacing: 1,
-    marginBottom: 8,
+    color: 'rgba(255,255,255,0.7)',
+    letterSpacing: 2,
+    marginBottom: theme.spacing.sm,
+    textTransform: 'uppercase',
   },
   balanceValue: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontFamily: theme.typography.fontBold,
+    fontSize: 42,
+    color: theme.colors.textPrimary,
     textAlign: 'center',
-    marginVertical: 10,
+    marginVertical: theme.spacing.sm,
+    textShadowColor: 'rgba(255,255,255,0.3)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
   totalsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '100%',
+    paddingTop: theme.spacing.md,
+    marginTop: theme.spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: theme.colors.glassBorder,
-    paddingTop: 15,
-    marginTop: 10,
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
   },
   totalCol: {
-    alignItems: 'center',
     flex: 1,
+    alignItems: 'center',
+  },
+  divider: {
+    width: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    marginHorizontal: theme.spacing.md,
   },
   totalLabel: {
+    fontFamily: theme.typography.fontMedium,
     fontSize: 10,
-    color: theme.colors.textSecondary,
+    color: 'rgba(255,255,255,0.6)',
+    letterSpacing: 1,
     marginBottom: 4,
   },
   incomeValue: {
+    fontFamily: theme.typography.fontBold,
     color: theme.colors.neonGreen,
-    fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 18,
   },
   expenseValue: {
-    color: '#FF6B6B',
-    fontWeight: 'bold',
-    fontSize: 16,
+    fontFamily: theme.typography.fontBold,
+    color: theme.colors.danger,
+    fontSize: 18,
   },
 });

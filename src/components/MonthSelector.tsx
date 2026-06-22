@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { theme } from '../theme/theme';
+import { BlurView } from 'expo-blur';
 
 interface MonthSelectorProps {
   currentMonthKey: string; // Format: "YYYY-MM"
@@ -40,42 +41,52 @@ export const MonthSelector: React.FC<MonthSelectorProps> = ({ currentMonthKey, o
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={handlePrev} style={styles.btn}>
-        <ChevronLeft size={24} color={theme.colors.neonPurple} />
-      </TouchableOpacity>
-      
-      <TouchableOpacity onPress={handleCurrent}>
-        <Text style={styles.monthText}>{getMonthName(currentMonthKey)}</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity onPress={handleNext} style={styles.btn}>
-        <ChevronRight size={24} color={theme.colors.neonPurple} />
-      </TouchableOpacity>
+      <BlurView intensity={30} tint="dark" style={styles.glass}>
+        <TouchableOpacity onPress={handlePrev} style={styles.btn}>
+          <ChevronLeft size={20} color={theme.colors.textPrimary} />
+        </TouchableOpacity>
+        
+        <TouchableOpacity onPress={handleCurrent} style={styles.centerBtn}>
+          <Text style={styles.monthText}>{getMonthName(currentMonthKey)}</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity onPress={handleNext} style={styles.btn}>
+          <ChevronRight size={20} color={theme.colors.textPrimary} />
+        </TouchableOpacity>
+      </BlurView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: theme.colors.surfaceDark,
-    borderRadius: 12,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    marginBottom: 15,
+    borderRadius: theme.borderRadius.xl,
+    overflow: 'hidden',
+    marginBottom: theme.spacing.lg,
     borderWidth: 1,
     borderColor: theme.colors.glassBorder,
   },
+  glass: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    backgroundColor: theme.colors.surfaceDark,
+  },
   btn: {
-    padding: 5,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 8,
+    padding: theme.spacing.md,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: theme.borderRadius.lg,
+  },
+  centerBtn: {
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.md,
   },
   monthText: {
-    color: '#FFFFFF',
+    fontFamily: theme.typography.fontBold,
+    color: theme.colors.textPrimary,
     fontSize: 16,
-    fontWeight: 'bold',
+    letterSpacing: 0.5,
   }
 });

@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { Trash2, ShoppingCart, Home, Car, Zap, CircleDollarSign, PlusCircle } from 'lucide-react-native';
 import { theme } from '../theme/theme';
 import { Transaction } from '../types';
@@ -29,139 +30,150 @@ const formatDate = (isoString: string) => {
   const d = new Date(isoString);
   const day = d.getDate();
   const month = d.toLocaleString('pl-PL', { month: 'short' });
-  const year = d.getFullYear();
-  return `${day} ${month} ${year}`;
+  return `${day} ${month}`;
 };
 
-const getCategoryIcon = (category: string) => {
+const getCategoryIcon = (category: string, type: string) => {
+  if (type === 'income') return <CircleDollarSign size={20} color={theme.colors.neonGreen} />;
   switch (category.toLowerCase()) {
-    case 'jedzenie': return <ShoppingCart size={16} color={theme.colors.textSecondary} />;
-    case 'czynsz': return <Home size={16} color={theme.colors.textSecondary} />;
-    case 'transport': return <Car size={16} color={theme.colors.textSecondary} />;
-    case 'rachunki': return <Zap size={16} color={theme.colors.textSecondary} />;
-    case 'wypłata': return <CircleDollarSign size={16} color={theme.colors.neonGreen} />;
-    default: return <PlusCircle size={16} color={theme.colors.textSecondary} />;
+    case 'jedzenie': return <ShoppingCart size={18} color="#FF9F1C" />;
+    case 'czynsz': return <Home size={18} color="#2EC4B6" />;
+    case 'transport': return <Car size={18} color="#4361EE" />;
+    case 'rachunki': return <Zap size={18} color="#F72585" />;
+    default: return <PlusCircle size={18} color={theme.colors.textSecondary} />;
   }
 };
 
 export const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDeleteTransaction }) => {
   return (
-    <View style={styles.historyCard}>
-      <Text style={styles.cardLabel}>HISTORIA (WYBRANY MIESIĄC)</Text>
-      {transactions.length === 0 ? (
-        <Text accessibilityLabel="empty-state-text" style={styles.emptyText}>
-          Brak transakcji w tym miesiącu
-        </Text>
-      ) : (
-        <View accessibilityLabel="transaction-list">
-          {transactions.map(t => (
-            <View key={t.id} accessibilityLabel="transaction-item" style={styles.txItem}>
-              
-              <View style={styles.iconContainer}>
-                {getCategoryIcon(t.category)}
-              </View>
+    <View style={styles.container}>
+      <BlurView intensity={20} tint="dark" style={styles.glassCard}>
+        <Text style={styles.cardLabel}>HISTORIA</Text>
+        {transactions.length === 0 ? (
+          <Text style={styles.emptyText}>
+            Wygląda na to, że nic tu nie ma. Dodaj pierwszą transakcję!
+          </Text>
+        ) : (
+          <View>
+            {transactions.map(t => (
+              <View key={t.id} style={styles.txItem}>
+                
+                <View style={styles.iconContainer}>
+                  {getCategoryIcon(t.category, t.type)}
+                </View>
 
-              <View style={styles.textContainer}>
-                <Text accessibilityLabel="transaction-item-desc" style={styles.txDesc} numberOfLines={1}>
-                  {t.description}
-                </Text>
-                <Text accessibilityLabel="transaction-item-category" style={styles.txCategory}>
-                  {t.category} • {formatDate(t.date)}
-                </Text>
+                <View style={styles.textContainer}>
+                  <Text style={styles.txDesc} numberOfLines={1}>
+                    {t.description}
+                  </Text>
+                  <Text style={styles.txCategory}>
+                    {t.category} • {formatDate(t.date)}
+                  </Text>
+                </View>
+                
+                <View style={styles.amountContainer}>
+                  <Text
+                    style={[styles.txAmount, t.type === 'income' ? styles.txIncome : styles.txExpense]}
+                  >
+                    {t.type === 'income' ? formatIncome(t.amount) : formatExpense(t.amount)}
+                  </Text>
+                  
+                  <TouchableOpacity 
+                    style={styles.deleteBtn} 
+                    onPress={() => onDeleteTransaction(t.id)}
+                  >
+                    <Trash2 size={16} color={theme.colors.textSecondary} />
+                  </TouchableOpacity>
+                </View>
               </View>
-              
-              <Text
-                accessibilityLabel="transaction-item-amount"
-                style={[styles.txAmount, t.type === 'income' ? styles.txIncome : styles.txExpense]}
-              >
-                {t.type === 'income' ? formatIncome(t.amount) : formatExpense(t.amount)}
-              </Text>
-              
-              <TouchableOpacity 
-                style={styles.deleteBtn} 
-                onPress={() => onDeleteTransaction(t.id)}
-                accessibilityLabel="delete-transaction-button"
-              >
-                <Trash2 size={16} color="#FF6B6B" />
-              </TouchableOpacity>
-            </View>
-          ))}
-        </View>
-      )}
+            ))}
+          </View>
+        )}
+      </BlurView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  historyCard: {
-    backgroundColor: theme.colors.surfaceDark,
-    borderRadius: 12,
-    padding: 20,
+  container: {
+    borderRadius: theme.borderRadius.xl,
+    overflow: 'hidden',
+    marginBottom: theme.spacing.lg,
     borderWidth: 1,
     borderColor: theme.colors.glassBorder,
-    marginBottom: 20,
+    backgroundColor: theme.colors.surfaceDark,
+  },
+  glassCard: {
+    padding: theme.spacing.lg,
   },
   cardLabel: {
+    fontFamily: theme.typography.fontMedium,
     fontSize: 12,
     color: theme.colors.textSecondary,
-    fontWeight: 'bold',
-    letterSpacing: 1,
-    marginBottom: 8,
+    letterSpacing: 1.5,
+    marginBottom: theme.spacing.md,
+    textTransform: 'uppercase',
   },
   emptyText: {
+    fontFamily: theme.typography.fontMedium,
     color: theme.colors.textSecondary,
-    fontStyle: 'italic',
     textAlign: 'center',
-    marginTop: 10,
+    marginVertical: theme.spacing.lg,
+    lineHeight: 20,
   },
   txItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.03)',
   },
   iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.03)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
   },
   textContainer: {
     flex: 1,
     marginRight: 10,
+    justifyContent: 'center',
   },
   txDesc: {
-    color: '#FFFFFF',
+    fontFamily: theme.typography.fontBold,
+    color: theme.colors.textPrimary,
     fontSize: 15,
-    fontWeight: '600',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   txCategory: {
+    fontFamily: theme.typography.fontMedium,
     color: theme.colors.textSecondary,
     fontSize: 12,
     textTransform: 'capitalize',
   },
+  amountContainer: {
+    alignItems: 'flex-end',
+    flexDirection: 'row',
+  },
   txAmount: {
-    fontWeight: 'bold',
-    fontSize: 15,
-    marginRight: 10,
+    fontFamily: theme.typography.fontBold,
+    fontSize: 16,
+    marginRight: 12,
   },
   txIncome: {
     color: theme.colors.neonGreen,
   },
   txExpense: {
-    color: '#FF6B6B',
+    color: theme.colors.textPrimary, // Clean white for expenses
   },
   deleteBtn: {
-    backgroundColor: 'rgba(255, 107, 107, 0.15)',
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 6,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderRadius: 8,
   }
 });
