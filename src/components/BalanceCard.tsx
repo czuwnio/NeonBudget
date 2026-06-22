@@ -51,6 +51,13 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ balance, totalIncome, 
     }
   }
 
+  const now = new Date();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const daysRemaining = daysInMonth - now.getDate() + 1;
+  const dailyRemaining = limit > 0 && limit > totalExpense 
+    ? (limit - totalExpense) / daysRemaining 
+    : 0;
+
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -92,6 +99,13 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ balance, totalIncome, 
             <View style={styles.progressBg}>
               <View style={[styles.progressFill, { width: `${progressPercent}%`, backgroundColor: barColor }]} />
             </View>
+            
+            <View style={styles.dailyLimitRow}>
+              <Text style={styles.dailyLimitLabel}>Dzienny budżet do końca miesiąca:</Text>
+              <Text style={[styles.dailyLimitValue, { color: dailyRemaining > 0 ? theme.colors.neonGreen : theme.colors.danger }]}>
+                {formatValue(dailyRemaining)}
+              </Text>
+            </View>
           </View>
         )}
 
@@ -111,7 +125,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: theme.spacing.lg,
     borderWidth: 1,
-    borderColor: 'rgba(157, 78, 221, 0.3)', // Subtle purple glow border
+    borderColor: 'rgba(157, 78, 221, 0.3)',
     shadowColor: theme.colors.neonPurple,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.2,
@@ -212,6 +226,26 @@ const styles = StyleSheet.create({
   progressFill: {
     height: '100%',
     borderRadius: 3,
+  },
+  dailyLimitRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.05)',
+  },
+  dailyLimitLabel: {
+    fontFamily: theme.typography.fontFamily,
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 11,
+    letterSpacing: 0.5,
+  },
+  dailyLimitValue: {
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: 'bold',
+    fontSize: 14,
   },
   momContainer: {
     marginTop: 12,

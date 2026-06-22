@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Platform } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Lock, Fingerprint } from 'lucide-react-native';
 import { theme } from '../theme/theme';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -72,8 +72,8 @@ export const AppLock: React.FC<Props> = ({ onUnlock, savedPin }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <BlurView intensity={80} tint="dark" style={styles.blur}>
+    <LinearGradient colors={['#0f0518', '#05050A', '#020205']} style={styles.container}>
+      <View style={styles.content}>
         <Lock size={48} color={theme.colors.neonPurple} style={{ marginBottom: 20 }} />
         <Text style={styles.title}>Wprowadź kod PIN</Text>
         
@@ -111,8 +111,8 @@ export const AppLock: React.FC<Props> = ({ onUnlock, savedPin }) => {
             <Text style={styles.keyText}>⌫</Text>
           </TouchableOpacity>
         </View>
-      </BlurView>
-    </View>
+      </View>
+    </LinearGradient>
   );
 };
 
@@ -121,15 +121,15 @@ const { width } = Dimensions.get('window');
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 9999,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
-  blur: {
-    ...StyleSheet.absoluteFillObject,
+  content: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    width: '100%',
+    padding: 20,
   },
   title: {
     fontFamily: theme.typography.fontFamily,
@@ -182,19 +182,19 @@ const styles = StyleSheet.create({
     gap: 15,
   },
   key: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: 'rgba(255,255,255,0.06)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(255,255,255,0.15)',
   },
   keyText: {
     fontFamily: theme.typography.fontFamily,
-    fontSize: 28,
-    color: theme.colors.textPrimary,
-    fontWeight: '500',
+    fontSize: 32,
+    color: '#ffffff',
+    fontWeight: '600',
   }
 });
