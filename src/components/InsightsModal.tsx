@@ -71,6 +71,8 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({ visible, onClose, 
   if (totalNetWorth >= 1000) achievements.push("💰 Pierwszy tysiąc");
   if (totalNetWorth >= 10000) achievements.push("🚀 Kasa w kosmos");
 
+  const maxCategoryAmount = sortedCategories.length > 0 ? sortedCategories[0][1] : 0;
+
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.overlay}>
@@ -133,6 +135,33 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({ visible, onClose, 
 
             <View style={styles.card}>
               <View style={styles.cardHeader}>
+                <PieChart size={20} color={theme.colors.neonBlue} />
+                <Text style={styles.cardTitle}>Struktura wydatków</Text>
+              </View>
+              <View style={{ marginTop: 8 }}>
+                {sortedCategories.length > 0 ? (
+                  sortedCategories.map(([cat, amount], idx) => {
+                    const percentage = maxCategoryAmount > 0 ? (amount / maxCategoryAmount) * 100 : 0;
+                    return (
+                      <View key={cat} style={{ marginBottom: 16 }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                          <Text style={styles.catName}>{idx + 1}. {cat}</Text>
+                          <Text style={styles.catAmount}>{formatPLN(amount)}</Text>
+                        </View>
+                        <View style={{ height: 6, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
+                          <View style={{ height: '100%', width: `${percentage}%`, backgroundColor: theme.colors.neonPurple, borderRadius: 3 }} />
+                        </View>
+                      </View>
+                    );
+                  })
+                ) : (
+                  <Text style={styles.cardDesc}>Brak danych</Text>
+                )}
+              </View>
+            </View>
+
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
                 <Calendar size={20} color={theme.colors.neonPurple} />
                 <Text style={styles.cardTitle}>Średnio dziennie (Ten miesiąc)</Text>
               </View>
@@ -162,23 +191,6 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({ visible, onClose, 
                 </>
               ) : (
                 <Text style={styles.cardDesc}>Brak wydatków</Text>
-              )}
-            </View>
-
-            <View style={styles.card}>
-              <View style={styles.cardHeader}>
-                <PieChart size={20} color={theme.colors.neonBlue} />
-                <Text style={styles.cardTitle}>Struktura wydatków</Text>
-              </View>
-              {sortedCategories.length > 0 ? (
-                sortedCategories.map(([cat, amount], idx) => (
-                  <View key={cat} style={styles.catRow}>
-                    <Text style={styles.catName}>{idx + 1}. {cat}</Text>
-                    <Text style={styles.catAmount}>{formatPLN(amount)}</Text>
-                  </View>
-                ))
-              ) : (
-                <Text style={styles.cardDesc}>Brak danych</Text>
               )}
             </View>
           </ScrollView>

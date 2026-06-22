@@ -159,7 +159,7 @@ export default function App() {
     });
   };
 
-  const handleSubmitTransaction = (amount: string, description: string, type: 'income' | 'expense', category: string) => {
+  const handleSubmitTransaction = (amount: string, description: string, type: 'income' | 'expense', category: string, dateStr?: string) => {
     const trimmedDesc = description.trim();
     if (!trimmedDesc || !amount) {
       setValidationError('Błąd walidacji: opis i kwota są wymagane');
@@ -174,6 +174,14 @@ export default function App() {
 
     setValidationError('');
     const finalAmount = Math.round(parsedAmount * 100) / 100;
+
+    let finalDate = new Date().toISOString();
+    if (dateStr) {
+      const d = new Date(dateStr);
+      if (!isNaN(d.getTime())) {
+        finalDate = d.toISOString();
+      }
+    }
 
     queueRef.current = queueRef.current.then(async () => {
       try {
@@ -332,7 +340,7 @@ export default function App() {
   };
 
   const handlePaySub = (sub: Subscription) => {
-    handleSubmitTransaction(String(sub.amount), `Subskrypcja: ${sub.name}`, 'expense', 'Rachunki');
+    handleSubmitTransaction(String(sub.amount), `Subskrypcja: ${sub.name}`, 'expense', 'Rachunki', new Date().toISOString().split('T')[0]);
     if (Platform.OS !== 'web') {
       Alert.alert('Opłacono', `Dodano wydatek za: ${sub.name}`);
     } else {

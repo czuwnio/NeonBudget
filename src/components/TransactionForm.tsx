@@ -5,7 +5,7 @@ import { PlusCircle, ArrowUpRight, ArrowDownRight } from 'lucide-react-native';
 import { theme } from '../theme/theme';
 
 interface TransactionFormProps {
-  onSubmitTransaction: (amount: string, description: string, type: 'income' | 'expense', category: string) => void;
+  onSubmitTransaction: (amount: string, description: string, type: 'income' | 'expense', category: string, dateStr: string) => void;
   validationError: string;
   expenseCategories: string[];
   incomeCategories: string[];
@@ -25,6 +25,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   const [description, setDescription] = useState('');
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [category, setCategory] = useState(expenseCategories[0] || 'Jedzenie');
+  const [customDate, setCustomDate] = useState(new Date().toISOString().split('T')[0]);
 
   const currentCategories = type === 'income' ? incomeCategories : expenseCategories;
 
@@ -34,11 +35,13 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
       setDescription(transactionToEdit.description);
       setType(transactionToEdit.type);
       setCategory(transactionToEdit.category);
+      setCustomDate(transactionToEdit.date.split('T')[0]);
     } else {
       setAmount('');
       setDescription('');
       setType('expense');
       setCategory(expenseCategories[0] || 'Jedzenie');
+      setCustomDate(new Date().toISOString().split('T')[0]);
     }
   }, [transactionToEdit, expenseCategories]);
 
@@ -48,9 +51,8 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   };
 
   const submit = () => {
-    onSubmitTransaction(amount, description, type, category);
+    onSubmitTransaction(amount, description, type, category, customDate);
     if (!validationError) {
-      // Clear form logic is handled by parent setting transactionToEdit to null
       if (!transactionToEdit) {
         setAmount('');
         setDescription('');
@@ -114,6 +116,23 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
           value={description}
           onChangeText={setDescription}
         />
+
+        <View style={{ flexDirection: 'row', gap: 8, marginBottom: theme.spacing.md }}>
+          <TextInput
+            style={[styles.input, { flex: 1, marginBottom: 0 }]}
+            placeholder="Data (YYYY-MM-DD)"
+            placeholderTextColor={theme.colors.textSecondary}
+            value={customDate}
+            onChangeText={setCustomDate}
+            maxLength={10}
+          />
+          <TouchableOpacity 
+            style={[styles.quickAmtBtn, { paddingHorizontal: 16 }]}
+            onPress={() => setCustomDate(new Date().toISOString().split('T')[0])}
+          >
+            <Text style={styles.quickAmtText}>Dziś</Text>
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.categoryPicker}>
           <View style={styles.categoryOptions}>
