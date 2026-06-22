@@ -270,7 +270,16 @@ export default function App() {
     setValidationError('');
   };
 
-  const handleDeleteTransaction = (id: string) => {
+  const cloneTransaction = (id: string) => {
+    const toClone = allTransactions.find(t => t.id === id);
+    if (toClone) {
+      const cloned = { ...toClone, id: Date.now().toString(), date: new Date().toISOString() };
+      setAllTransactions([cloned, ...allTransactions]);
+      setEditingTransactionId(null);
+    }
+  };
+
+  const deleteTransaction = (id: string) => {
     queueRef.current = queueRef.current.then(async () => {
       try {
         const stored = await AsyncStorage.getItem('neon-budget-transactions');
@@ -640,6 +649,39 @@ export default function App() {
               onDeleteSub={handleDeleteSub}
               onPaySub={handlePaySub}
             />
+
+            {editingTransactionId && (
+              <View style={{ flex: 1, justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.8)', padding: 20 }}>
+                <View style={{ backgroundColor: theme.colors.surface, borderRadius: theme.borderRadius.lg, padding: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                    <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>Edytuj transakcję</Text>
+                    <TouchableOpacity onPress={() => setEditingTransactionId(null)}>
+                      <X size={24} color="#fff" />
+                    </TouchableOpacity>
+                  </View>
+                  {allTransactions.find(t => t.id === editingTransactionId) && (
+                    <TransactionForm
+                      onSubmitTransaction={handleSubmitTransaction}
+                      transactionToEdit={allTransactions.find(t => t.id === editingTransactionId)}
+                    />
+                  )}
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 }}>
+                    <TouchableOpacity
+                      style={{ backgroundColor: 'rgba(255,0,0,0.2)', padding: 12, borderRadius: 8, alignItems: 'center', flex: 1, marginRight: 8, borderWidth: 1, borderColor: 'rgba(255,0,0,0.5)' }}
+                      onPress={() => deleteTransaction(editingTransactionId)}
+                    >
+                      <Text style={{ color: '#ff3366', fontWeight: 'bold' }}>Usuń transakcję</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={{ backgroundColor: 'rgba(56,176,0,0.2)', padding: 12, borderRadius: 8, alignItems: 'center', flex: 1, borderWidth: 1, borderColor: 'rgba(56,176,0,0.5)' }}
+                      onPress={() => cloneTransaction(editingTransactionId)}
+                    >
+                      <Text style={{ color: theme.colors.neonGreen, fontWeight: 'bold' }}>Klonuj transakcję</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            )}
 
             <TransactionForm 
               onSubmitTransaction={handleSubmitTransaction} 
