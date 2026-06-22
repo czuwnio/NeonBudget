@@ -126,6 +126,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   };
 
+  const handleWipeData = () => {
+    if (Platform.OS === 'web') {
+      if (window.confirm('Czy na pewno chcesz usunąć WSZYSTKIE dane? Tej operacji nie można cofnąć.')) {
+        onImportData([]);
+        alert('Dane zostały bezpowrotnie wyczyszczone.');
+      }
+    }
+  };
+
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.overlay}>
@@ -258,6 +267,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <Text style={[styles.backupBtnText, { color: theme.colors.neonGreen }]}>Pobierz arkusz CSV</Text>
               </TouchableOpacity>
               <Text style={styles.helperText}>Wyeksportuj swoje dane, by móc otworzyć je w Excelu.</Text>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: theme.colors.danger }]}>STREFA NIEBEZPIECZNA</Text>
+              <TouchableOpacity style={[styles.backupBtn, { backgroundColor: 'rgba(255, 77, 77, 0.15)', borderColor: 'rgba(255, 77, 77, 0.3)', borderWidth: 1 }]} onPress={handleWipeData}>
+                <Text style={[styles.backupBtnText, { color: theme.colors.danger }]}>Wyczyść wszystkie dane</Text>
+              </TouchableOpacity>
+              <Text style={styles.helperText}>Bezpowrotnie usuwa wszystkie transakcje z pamięci urządzenia.</Text>
             </View>
 
             <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>

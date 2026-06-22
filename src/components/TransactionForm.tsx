@@ -112,11 +112,19 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
 
         <TextInput
           style={styles.input}
-          placeholder="Kwota (np. 150 lub 100 USD/EUR)"
+          placeholder="Kwota (np. 50+20 lub 100 USD)"
           placeholderTextColor={theme.colors.textSecondary}
-          keyboardType="numeric"
           value={amount}
           onChangeText={setAmount}
+          onBlur={() => {
+            try {
+              let sanitized = amount.replace(',', '.').replace(/[^0-9\+\-\*\/\.\s]/g, '');
+              if (sanitized.match(/[\+\-\*\/]/)) {
+                const result = new Function('return ' + sanitized)();
+                if (!isNaN(result)) setAmount(result.toFixed(2));
+              }
+            } catch(e) {}
+          }}
         />
 
         <View style={styles.quickAmounts}>
