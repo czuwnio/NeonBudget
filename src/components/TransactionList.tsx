@@ -24,13 +24,21 @@ const formatExpense = (val: number) => {
   return `-${parts.join(',')} zł`;
 };
 
+const formatDate = (isoString: string) => {
+  const d = new Date(isoString);
+  const day = d.getDate();
+  const month = d.toLocaleString('pl-PL', { month: 'short' });
+  const year = d.getFullYear();
+  return `${day} ${month} ${year}`;
+};
+
 export const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDeleteTransaction }) => {
   return (
     <View style={styles.historyCard}>
-      <Text style={styles.cardLabel}>HISTORIA</Text>
+      <Text style={styles.cardLabel}>HISTORIA (WYBRANY MIESIĄC)</Text>
       {transactions.length === 0 ? (
         <Text accessibilityLabel="empty-state-text" style={styles.emptyText}>
-          Brak transakcji
+          Brak transakcji w tym miesiącu
         </Text>
       ) : (
         <View accessibilityLabel="transaction-list">
@@ -41,7 +49,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({ transactions, 
                   {t.description}
                 </Text>
                 <Text accessibilityLabel="transaction-item-category" style={styles.txCategory}>
-                  {t.category}
+                  {t.category} • {formatDate(t.date)}
                 </Text>
               </View>
               
@@ -106,6 +114,7 @@ const styles = StyleSheet.create({
   txCategory: {
     color: theme.colors.textSecondary,
     fontSize: 12,
+    textTransform: 'capitalize',
   },
   txAmount: {
     fontWeight: 'bold',
