@@ -1,13 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { Trash2, ShoppingCart, Home, Car, Zap, CircleDollarSign, PlusCircle } from 'lucide-react-native';
+import { Trash2, ShoppingCart, Home, Car, Zap, CircleDollarSign, PlusCircle, Pencil } from 'lucide-react-native';
 import { theme } from '../theme/theme';
 import { Transaction } from '../types';
 
 interface TransactionListProps {
   transactions: Transaction[];
   onDeleteTransaction: (id: string) => void;
+  onEditTransaction: (t: Transaction) => void;
 }
 
 const formatIncome = (val: number) => {
@@ -44,7 +45,7 @@ const getCategoryIcon = (category: string, type: string) => {
   }
 };
 
-export const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDeleteTransaction }) => {
+export const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDeleteTransaction, onEditTransaction }) => {
   return (
     <View style={styles.container}>
       <BlurView intensity={20} tint="dark" style={styles.glassCard}>
@@ -78,12 +79,20 @@ export const TransactionList: React.FC<TransactionListProps> = ({ transactions, 
                     {t.type === 'income' ? formatIncome(t.amount) : formatExpense(t.amount)}
                   </Text>
                   
-                  <TouchableOpacity 
-                    style={styles.deleteBtn} 
-                    onPress={() => onDeleteTransaction(t.id)}
-                  >
-                    <Trash2 size={16} color={theme.colors.textSecondary} />
-                  </TouchableOpacity>
+                  <View style={styles.actions}>
+                    <TouchableOpacity 
+                      style={styles.actionBtn} 
+                      onPress={() => onEditTransaction(t)}
+                    >
+                      <Pencil size={16} color={theme.colors.textSecondary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={styles.actionBtn} 
+                      onPress={() => onDeleteTransaction(t.id)}
+                    >
+                      <Trash2 size={16} color={theme.colors.textSecondary} />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
             ))}
@@ -158,12 +167,19 @@ const styles = StyleSheet.create({
   },
   amountContainer: {
     alignItems: 'flex-end',
+    gap: 6,
+  },
+  actions: {
     flexDirection: 'row',
+    gap: 12,
+  },
+  actionBtn: {
+    padding: 4,
+    opacity: 0.8,
   },
   txAmount: {
     fontFamily: theme.typography.fontFamily, fontWeight: 'bold',
     fontSize: 16,
-    marginRight: 12,
   },
   txIncome: {
     color: theme.colors.neonGreen,

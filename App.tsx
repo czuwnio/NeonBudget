@@ -38,6 +38,7 @@ export default function App() {
   const [incomeCategories, setIncomeCategories] = useState(['Wypłata', 'Inne']);
   const [monthlyLimit, setMonthlyLimit] = useState<number>(0);
   const [isSettingsVisible, setSettingsVisible] = useState(false);
+  const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
 
   const now = new Date();
   const initialMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -90,7 +91,7 @@ export default function App() {
     await AsyncStorage.setItem('neon-budget-limit', newLimit.toString());
   };
 
-  const handleAddTransaction = (amount: string, description: string, type: 'income' | 'expense', category: string) => {
+  const handleSubmitTransaction = (amount: string, description: string, type: 'income' | 'expense', category: string) => {
     const trimmedDesc = description.trim();
     if (!trimmedDesc || !amount) {
       setValidationError('Błąd walidacji: opis i kwota są wymagane');
@@ -106,15 +107,6 @@ export default function App() {
     setValidationError('');
     const finalAmount = Math.round(parsedAmount * 100) / 100;
 
-    const newTx: Transaction = {
-      id: String(Date.now() + Math.random()),
-      amount: finalAmount,
-      description: trimmedDesc,
-      type,
-      category,
-      date: new Date().toISOString(),
-    };
-
     queueRef.current = queueRef.current.then(async () => {
       try {
         const stored = await AsyncStorage.getItem('neon-budget-transactions');
@@ -126,19 +118,49 @@ export default function App() {
           } catch (e) {}
         }
 
-        const updatedTransactions = [newTx, ...latestList];
+        let updatedTransactions;
+
+        if (editingTransactionId) {
+          updatedTransactions = latestList.map(t => 
+            t.id === editingTransactionId 
+              ? { ...t, amount: finalAmount, description: trimmedDesc, type, category } 
+              : t
+          );
+          setEditingTransactionId(null);
+        } else {
+          const newTx: Transaction = {
+            id: String(Date.now() + Math.random()),
+            amount: finalAmount,
+            description: trimmedDesc,
+            type,
+            category,
+            date: new Date().toISOString(),
+          };
+          updatedTransactions = [newTx, ...latestList];
+          
+          // Switch to current month when adding new
+          const now = new Date();
+          const nowKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+          setSelectedMonthKey(nowKey);
+        }
+
         await AsyncStorage.setItem('neon-budget-transactions', JSON.stringify(updatedTransactions));
         
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setAllTransactions(updatedTransactions);
-        
-        const now = new Date();
-        const nowKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-        setSelectedMonthKey(nowKey);
       } catch (err) {
         Alert.alert('Błąd', 'Nie udało się zapisać transakcji');
       }
     });
+  };
+
+  const handleEditTransaction = (t: Transaction) => {
+    setEditingTransactionId(t.id);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTransactionId(null);
+    setValidationError('');
   };
 
   const handleDeleteTransaction = (id: string) => {
@@ -276,10 +298,12 @@ export default function App() {
             />
 
             <TransactionForm 
-              onAddTransaction={handleAddTransaction} 
+              onSubmitTransaction={handleSubmitTransaction} 
               validationError={validationError} 
               expenseCategories={expenseCategories}
               incomeCategories={incomeCategories}
+              transactionToEdit={allTransactions.find(t => t.id === editingTransactionId)}
+              onCancelEdit={handleCancelEdit}
             />
 
             <View style={styles.searchContainer}>
@@ -296,6 +320,7 @@ export default function App() {
             <TransactionList 
               transactions={currentMonthTransactions} 
               onDeleteTransaction={handleDeleteTransaction} 
+              onEditTransaction={handleEditTransaction}
             />
 
             <View style={styles.actionZone}>

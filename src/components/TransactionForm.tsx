@@ -5,17 +5,21 @@ import { PlusCircle, ArrowUpRight, ArrowDownRight } from 'lucide-react-native';
 import { theme } from '../theme/theme';
 
 interface TransactionFormProps {
-  onAddTransaction: (amount: string, description: string, type: 'income' | 'expense', category: string) => void;
+  onSubmitTransaction: (amount: string, description: string, type: 'income' | 'expense', category: string) => void;
   validationError: string;
   expenseCategories: string[];
   incomeCategories: string[];
+  transactionToEdit: any;
+  onCancelEdit: () => void;
 }
 
 export const TransactionForm: React.FC<TransactionFormProps> = ({ 
-  onAddTransaction, 
+  onSubmitTransaction, 
   validationError,
   expenseCategories,
-  incomeCategories
+  incomeCategories,
+  transactionToEdit,
+  onCancelEdit
 }) => {
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
@@ -24,19 +28,40 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
 
   const currentCategories = type === 'income' ? incomeCategories : expenseCategories;
 
+  React.useEffect(() => {
+    if (transactionToEdit) {
+      setAmount(transactionToEdit.amount.toString());
+      setDescription(transactionToEdit.description);
+      setType(transactionToEdit.type);
+      setCategory(transactionToEdit.category);
+    } else {
+      setAmount('');
+      setDescription('');
+      setType('expense');
+      setCategory(expenseCategories[0] || 'Jedzenie');
+    }
+  }, [transactionToEdit, expenseCategories]);
+
   const handleTypeChange = (newType: 'income' | 'expense') => {
     setType(newType);
     setCategory(newType === 'income' ? (incomeCategories[0] || 'Wypłata') : (expenseCategories[0] || 'Jedzenie'));
   };
 
   const submit = () => {
-    onAddTransaction(amount, description, type, category);
+    onSubmitTransaction(amount, description, type, category);
+    if (!validationError) {
+      // Clear form logic is handled by parent setting transactionToEdit to null
+      if (!transactionToEdit) {
+        setAmount('');
+        setDescription('');
+      }
+    }
   };
 
   return (
     <View style={styles.container}>
       <BlurView intensity={20} tint="dark" style={styles.glassCard}>
-        <Text style={styles.cardLabel}>NOWA TRANSAKCJA</Text>
+        <Text style={styles.cardLabel}>{transactionToEdit ? 'EDYTUJ TRANSAKCJĘ' : 'NOWA TRANSAKCJA'}</Text>
 
         {validationError ? (
           <Text accessibilityLabel="validation-error" style={styles.errorText}>
@@ -94,10 +119,16 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
           </View>
         </View>
 
-        <TouchableOpacity style={styles.addBtn} onPress={submit}>
-          <PlusCircle size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
-          <Text style={styles.addBtnText}>Dodaj transakcję</Text>
-        </TouchableOpacity>
+        <View style={styles.actionsRow}>
+          <TouchableOpacity style={styles.submitBtn} onPress={submit}>
+            <Text style={styles.submitText}>{transactionToEdit ? 'ZAPISZ ZMIANY' : 'DODAJ'}</Text>
+          </TouchableOpacity>
+          {transactionToEdit && (
+            <TouchableOpacity style={styles.cancelBtn} onPress={onCancelEdit}>
+              <Text style={styles.cancelText}>ANULUJ</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </BlurView>
     </View>
   );
@@ -199,22 +230,39 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     fontSize: 13,
   },
-  addBtn: {
-    flexDirection: 'row',
+  submitBtn: {
+    flex: 1,
     backgroundColor: theme.colors.neonPurple,
+    paddingVertical: 14,
     borderRadius: theme.borderRadius.md,
-    paddingVertical: 16,
-    justifyContent: 'center',
     alignItems: 'center',
     shadowColor: theme.colors.neonPurple,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  addBtnText: {
+  submitText: {
     fontFamily: theme.typography.fontFamily, fontWeight: 'bold',
-    color: '#FFFFFF',
-    fontSize: 16,
-    letterSpacing: 0.5,
+    color: '#fff',
+    fontSize: 14,
+    letterSpacing: 1,
   },
+  actionsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  cancelBtn: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingVertical: 14,
+    borderRadius: theme.borderRadius.md,
+    alignItems: 'center',
+  },
+  cancelText: {
+    fontFamily: theme.typography.fontFamily, fontWeight: 'bold',
+    color: '#fff',
+    fontSize: 14,
+    letterSpacing: 1,
+  }
 });
