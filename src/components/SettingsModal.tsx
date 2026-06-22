@@ -148,8 +148,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         
         <View style={styles.modalContent}>
           <View style={styles.header}>
-            <View style={{ flex: 1, paddingRight: 16 }}>
-              <Text style={styles.title}>Ustawienia</Text>
+            <View style={{ flex: 1, paddingRight: 16, justifyContent: 'center' }}>
+              <Text style={styles.title} numberOfLines={1} adjustsFontSizeToFit>Ustawienia</Text>
             </View>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
               <X size={24} color={theme.colors.textPrimary} />
