@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, ScrollView, Alert, LayoutAnimation, Platform, U
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Wallet } from 'lucide-react-native';
+import { Wallet, Download } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_700Bold } from '@expo-google-fonts/inter';
@@ -151,6 +151,36 @@ export default function App() {
     });
   };
 
+  const handleExportCSV = () => {
+    if (allTransactions.length === 0) {
+      Alert.alert('Brak danych', 'Nie masz żadnych transakcji do wyeksportowania.');
+      return;
+    }
+
+    const headers = 'ID,Data,Typ,Kategoria,Kwota,Opis\n';
+    const rows = allTransactions.map(t => {
+      // Escape commas and quotes in description
+      const safeDesc = `"${t.description.replace(/"/g, '""')}"`;
+      return `${t.id},${t.date},${t.type},${t.category},${t.amount},${safeDesc}`;
+    }).join('\n');
+
+    const csvContent = headers + rows;
+
+    if (Platform.OS === 'web') {
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'neon_budget_export.csv');
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      Alert.alert('Sukces', 'Funkcja eksportu do CSV działa tylko na stronie WWW w tej wersji.');
+    }
+  };
+
   const currentMonthTransactions = useMemo(() => {
     return allTransactions.filter(t => {
       const d = new Date(t.date);
@@ -214,9 +244,14 @@ export default function App() {
               onDeleteTransaction={handleDeleteTransaction} 
             />
 
-            <View style={styles.dangerZone}>
+            <View style={styles.actionZone}>
+              <TouchableOpacity onPress={handleExportCSV} style={styles.exportBtn}>
+                <Download size={16} color="#FFFFFF" style={{ marginRight: 8 }} />
+                <Text style={styles.exportBtnText}>Pobierz CSV</Text>
+              </TouchableOpacity>
+              
               <TouchableOpacity onPress={handleClearAll} style={styles.clearBtn}>
-                <Text style={styles.clearBtnText}>Wyczyść wszystkie dane</Text>
+                <Text style={styles.clearBtnText}>Wyczyść wszystko</Text>
               </TouchableOpacity>
             </View>
 
@@ -260,17 +295,36 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     letterSpacing: 0.5,
   },
-  dangerZone: {
+  actionZone: {
     marginTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 16,
+  },
+  exportBtn: {
+    flexDirection: 'row',
     alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 100,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  exportBtnText: {
+    fontFamily: theme.typography.fontMedium,
+    color: '#FFFFFF',
+    fontSize: 12,
+    letterSpacing: 1,
   },
   clearBtn: {
     paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     borderWidth: 1,
     borderColor: 'rgba(255, 77, 77, 0.2)',
     borderRadius: 100,
     backgroundColor: 'rgba(255, 77, 77, 0.05)',
+    justifyContent: 'center',
   },
   clearBtnText: {
     fontFamily: theme.typography.fontMedium,
