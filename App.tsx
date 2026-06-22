@@ -764,7 +764,7 @@ function MainApp() {
             <TransactionList 
               transactions={displayedTransactions} 
               searchQuery={searchQuery}
-              onDeleteTransaction={handleDeleteTransaction} 
+              onDeleteTransaction={deleteTransaction} 
               onEditTransaction={handleEditTransaction}
               onTagClick={(tag) => {
                 if (!searchQuery.includes(tag)) {
