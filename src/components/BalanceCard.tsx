@@ -8,6 +8,7 @@ interface BalanceCardProps {
   balance: number;
   totalIncome: number;
   totalExpense: number;
+  monthlyLimit?: number;
 }
 
 const formatValue = (val: number, isIncome: boolean = false, isExpense: boolean = false) => {
@@ -25,7 +26,15 @@ const formatValue = (val: number, isIncome: boolean = false, isExpense: boolean 
   return `${sign}${parts.join(',')} zł`;
 };
 
-export const BalanceCard: React.FC<BalanceCardProps> = ({ balance, totalIncome, totalExpense }) => {
+export const BalanceCard: React.FC<BalanceCardProps> = ({ balance, totalIncome, totalExpense, monthlyLimit }) => {
+  const limit = monthlyLimit || 0;
+  const progressPercent = limit > 0 ? Math.min((totalExpense / limit) * 100, 100) : 0;
+  
+  let barColor = theme.colors.neonGreen;
+  if (progressPercent >= 90) barColor = theme.colors.danger;
+  else if (progressPercent >= 75) barColor = '#FF9F1C'; // Orange
+  else if (progressPercent >= 50) barColor = '#4361EE'; // Blue for mid way
+
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -55,6 +64,20 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ balance, totalIncome, 
             </Text>
           </View>
         </View>
+
+        {limit > 0 && (
+          <View style={styles.budgetContainer}>
+            <View style={styles.budgetLabels}>
+              <Text style={styles.budgetLabel}>WYKORZYSTANIE BUDŻETU ({limit} PLN)</Text>
+              <Text style={[styles.budgetPercent, { color: barColor }]}>
+                {Math.round((totalExpense / limit) * 100)}%
+              </Text>
+            </View>
+            <View style={styles.progressBg}>
+              <View style={[styles.progressFill, { width: `${progressPercent}%`, backgroundColor: barColor }]} />
+            </View>
+          </View>
+        )}
       </BlurView>
     </View>
   );
@@ -133,4 +156,39 @@ const styles = StyleSheet.create({
     color: theme.colors.danger,
     fontSize: 18,
   },
+  budgetContainer: {
+    width: '100%',
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  budgetLabels: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  budgetLabel: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.6)',
+    letterSpacing: 1,
+  },
+  budgetPercent: {
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  progressBg: {
+    width: '100%',
+    height: 6,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 3,
+  }
 });

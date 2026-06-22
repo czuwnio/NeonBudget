@@ -36,6 +36,7 @@ export default function App() {
   
   const [expenseCategories, setExpenseCategories] = useState(['Jedzenie', 'Czynsz', 'Transport', 'Rachunki', 'Inne']);
   const [incomeCategories, setIncomeCategories] = useState(['Wypłata', 'Inne']);
+  const [monthlyLimit, setMonthlyLimit] = useState<number>(0);
   const [isSettingsVisible, setSettingsVisible] = useState(false);
 
   const now = new Date();
@@ -64,6 +65,11 @@ export default function App() {
           const parsed = JSON.parse(storedIncomeCats);
           if (Array.isArray(parsed) && parsed.length > 0) setIncomeCategories(parsed);
         }
+
+        const storedLimit = await AsyncStorage.getItem('neon-budget-limit');
+        if (storedLimit) {
+          setMonthlyLimit(parseFloat(storedLimit));
+        }
       } catch (e) {}
     };
     loadInitialData();
@@ -75,8 +81,12 @@ export default function App() {
       await AsyncStorage.setItem('neon-budget-expense-cats', JSON.stringify(newCats));
     } else {
       setIncomeCategories(newCats);
-      await AsyncStorage.setItem('neon-budget-income-cats', JSON.stringify(newCats));
     }
+  };
+
+  const handleUpdateLimit = async (newLimit: number) => {
+    setMonthlyLimit(newLimit);
+    await AsyncStorage.setItem('neon-budget-limit', newLimit.toString());
   };
 
   const handleAddTransaction = (amount: string, description: string, type: 'income' | 'expense', category: string) => {
@@ -253,6 +263,7 @@ export default function App() {
               balance={balance} 
               totalIncome={totalIncome} 
               totalExpense={totalExpense} 
+              monthlyLimit={monthlyLimit}
             />
 
             <CategoryChart 
@@ -289,6 +300,8 @@ export default function App() {
               expenseCategories={expenseCategories}
               incomeCategories={incomeCategories}
               onUpdateCategories={handleUpdateCategories}
+              monthlyLimit={monthlyLimit}
+              onUpdateLimit={handleUpdateLimit}
             />
 
           </ScrollView>

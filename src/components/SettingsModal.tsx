@@ -10,6 +10,8 @@ interface SettingsModalProps {
   expenseCategories: string[];
   incomeCategories: string[];
   onUpdateCategories: (type: 'expense' | 'income', newCategories: string[]) => void;
+  monthlyLimit: number;
+  onUpdateLimit: (limit: number) => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -18,9 +20,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   expenseCategories,
   incomeCategories,
   onUpdateCategories,
+  monthlyLimit,
+  onUpdateLimit,
 }) => {
   const [newExpenseCat, setNewExpenseCat] = useState('');
   const [newIncomeCat, setNewIncomeCat] = useState('');
+  const [limitInput, setLimitInput] = useState(monthlyLimit ? monthlyLimit.toString() : '');
+
+  // Synchronize when modal opens
+  React.useEffect(() => {
+    if (visible) {
+      setLimitInput(monthlyLimit ? monthlyLimit.toString() : '');
+    }
+  }, [visible, monthlyLimit]);
 
   const handleAddCat = (type: 'expense' | 'income') => {
     if (type === 'expense') {
@@ -46,6 +58,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   };
 
+  const handleSaveLimit = () => {
+    const parsed = parseFloat(limitInput.replace(',', '.'));
+    if (!isNaN(parsed) && parsed >= 0) {
+      onUpdateLimit(parsed);
+      onClose(); // Optional: close modal on save, or just show success
+    } else {
+      onUpdateLimit(0);
+    }
+  };
+
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.overlay}>
@@ -60,6 +82,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </View>
 
           <ScrollView style={styles.scrollArea}>
+            <Text style={styles.sectionTitle}>MIESIĘCZNY LIMIT WYDATKÓW (BUDŻET)</Text>
+            <View style={styles.addRow}>
+              <TextInput
+                style={styles.input}
+                placeholder="Np. 3000 (0 = brak limitu)"
+                placeholderTextColor={theme.colors.textSecondary}
+                value={limitInput}
+                onChangeText={setLimitInput}
+                keyboardType="numeric"
+              />
+              <TouchableOpacity style={styles.addBtn} onPress={handleSaveLimit}>
+                <Text style={styles.saveBtnText}>Zapisz</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.divider} />
+
             <Text style={styles.sectionTitle}>KATEGORIE WYDATKÓW</Text>
             <View style={styles.catList}>
               {expenseCategories.map(cat => (
@@ -211,6 +250,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     borderRadius: theme.borderRadius.md,
+  },
+  saveBtnText: {
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: 'bold',
+    color: '#fff',
   },
   divider: {
     height: 1,
