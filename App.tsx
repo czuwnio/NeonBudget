@@ -489,6 +489,15 @@ export default function App() {
     return currentStreak;
   }, [allTransactions]);
 
+  const currentMonthExpense = useMemo(() => {
+    return currentMonthTransactions
+      .filter(t => t.type === 'expense')
+      .reduce((sum, t) => sum + t.amount, 0);
+  }, [currentMonthTransactions]);
+
+  const remainingLimit = monthlyLimit > 0 ? monthlyLimit - currentMonthExpense : null;
+  const isOverBudget = monthlyLimit > 0 && currentMonthExpense > monthlyLimit;
+
   const userXP = useMemo(() => allTransactions.length * 15, [allTransactions]);
   const userLevel = Math.floor(userXP / 100) + 1;
 
@@ -526,6 +535,12 @@ export default function App() {
           {showLevelUp && (
             <View style={{ position: 'absolute', top: 50, left: 20, right: 20, backgroundColor: theme.colors.neonPurple, padding: 16, borderRadius: theme.borderRadius.md, zIndex: 9999, alignItems: 'center', shadowColor: theme.colors.neonPurple, shadowOpacity: 0.8, shadowRadius: 15 }}>
               <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 18, fontFamily: theme.typography.fontFamily }}>AWANS! Osiągnąłeś Poziom {userLevel}! 🎉</Text>
+            </View>
+          )}
+
+          {isOverBudget && (
+            <View style={{ backgroundColor: 'rgba(255, 0, 50, 0.2)', padding: 10, alignItems: 'center', borderBottomWidth: 1, borderColor: 'rgba(255, 0, 50, 0.5)' }}>
+              <Text style={{ color: '#ff3366', fontWeight: 'bold', fontSize: 12 }}>⚠️ UWAGA: Przekroczono miesięczny limit wydatków!</Text>
             </View>
           )}
 
