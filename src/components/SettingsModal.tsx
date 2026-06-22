@@ -314,9 +314,10 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: theme.colors.surfaceDark,
-    margin: Platform.OS === 'web' ? 'auto' : 20,
-    width: Platform.OS === 'web' ? 450 : 'auto',
+    width: '90%',
+    maxWidth: 450,
     maxHeight: '80%',
+    alignSelf: 'center',
     borderRadius: theme.borderRadius.xl,
     borderWidth: 1,
     borderColor: theme.colors.glassBorder,
