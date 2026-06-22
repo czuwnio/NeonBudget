@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Trash2, ShoppingCart, Home, Car, Zap, CircleDollarSign, PlusCircle } from 'lucide-react-native';
 import { theme } from '../theme/theme';
 import { Transaction } from '../types';
 
@@ -32,6 +33,17 @@ const formatDate = (isoString: string) => {
   return `${day} ${month} ${year}`;
 };
 
+const getCategoryIcon = (category: string) => {
+  switch (category.toLowerCase()) {
+    case 'jedzenie': return <ShoppingCart size={16} color={theme.colors.textSecondary} />;
+    case 'czynsz': return <Home size={16} color={theme.colors.textSecondary} />;
+    case 'transport': return <Car size={16} color={theme.colors.textSecondary} />;
+    case 'rachunki': return <Zap size={16} color={theme.colors.textSecondary} />;
+    case 'wypłata': return <CircleDollarSign size={16} color={theme.colors.neonGreen} />;
+    default: return <PlusCircle size={16} color={theme.colors.textSecondary} />;
+  }
+};
+
 export const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDeleteTransaction }) => {
   return (
     <View style={styles.historyCard}>
@@ -44,8 +56,13 @@ export const TransactionList: React.FC<TransactionListProps> = ({ transactions, 
         <View accessibilityLabel="transaction-list">
           {transactions.map(t => (
             <View key={t.id} accessibilityLabel="transaction-item" style={styles.txItem}>
-              <View style={{ flex: 1 }}>
-                <Text accessibilityLabel="transaction-item-desc" style={styles.txDesc}>
+              
+              <View style={styles.iconContainer}>
+                {getCategoryIcon(t.category)}
+              </View>
+
+              <View style={styles.textContainer}>
+                <Text accessibilityLabel="transaction-item-desc" style={styles.txDesc} numberOfLines={1}>
                   {t.description}
                 </Text>
                 <Text accessibilityLabel="transaction-item-category" style={styles.txCategory}>
@@ -65,7 +82,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({ transactions, 
                 onPress={() => onDeleteTransaction(t.id)}
                 accessibilityLabel="delete-transaction-button"
               >
-                <Text style={styles.deleteBtnText}>✕</Text>
+                <Trash2 size={16} color="#FF6B6B" />
               </TouchableOpacity>
             </View>
           ))}
@@ -99,11 +116,23 @@ const styles = StyleSheet.create({
   },
   txItem: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  textContainer: {
+    flex: 1,
+    marginRight: 10,
   },
   txDesc: {
     color: '#FFFFFF',
@@ -129,15 +158,10 @@ const styles = StyleSheet.create({
   },
   deleteBtn: {
     backgroundColor: 'rgba(255, 107, 107, 0.15)',
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  deleteBtnText: {
-    color: '#FF6B6B',
-    fontSize: 14,
-    fontWeight: 'bold',
   }
 });

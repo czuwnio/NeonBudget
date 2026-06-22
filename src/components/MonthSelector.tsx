@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { theme } from '../theme/theme';
 
 interface MonthSelectorProps {
@@ -40,7 +41,7 @@ export const MonthSelector: React.FC<MonthSelectorProps> = ({ currentMonthKey, o
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={handlePrev} style={styles.btn}>
-        <Text style={styles.btnText}>{'<'}</Text>
+        <ChevronLeft size={24} color={theme.colors.neonPurple} />
       </TouchableOpacity>
       
       <TouchableOpacity onPress={handleCurrent}>
@@ -48,7 +49,7 @@ export const MonthSelector: React.FC<MonthSelectorProps> = ({ currentMonthKey, o
       </TouchableOpacity>
       
       <TouchableOpacity onPress={handleNext} style={styles.btn}>
-        <Text style={styles.btnText}>{'>'}</Text>
+        <ChevronRight size={24} color={theme.colors.neonPurple} />
       </TouchableOpacity>
     </View>
   );
@@ -61,7 +62,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: theme.colors.surfaceDark,
     borderRadius: 12,
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
     paddingVertical: 12,
     marginBottom: 15,
     borderWidth: 1,
@@ -69,14 +70,8 @@ const styles = StyleSheet.create({
   },
   btn: {
     padding: 5,
-    paddingHorizontal: 15,
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: 8,
-  },
-  btnText: {
-    color: theme.colors.neonPurple,
-    fontSize: 18,
-    fontWeight: 'bold',
   },
   monthText: {
     color: '#FFFFFF',

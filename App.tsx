@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, ScrollView, Alert, LayoutAnimation, Platform, U
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Wallet } from 'lucide-react-native';
 
 import { theme } from './src/theme/theme';
 import { Transaction } from './src/types';
@@ -171,7 +172,10 @@ export default function App() {
       <SafeAreaView style={styles.container} testID="app-container">
         <StatusBar style="light" />
         <ScrollView contentContainerStyle={styles.contentContainer} testID="app-content">
-          <Text style={styles.title} testID="app-title">NeonBudget</Text>
+          <View style={styles.header}>
+            <Wallet size={32} color={theme.colors.neonPurple} />
+            <Text style={styles.title} testID="app-title">NeonBudget</Text>
+          </View>
           <Text style={styles.subtitle} testID="app-subtitle">Śledź swoje bogactwo w neonowym świetle</Text>
 
           <MonthSelector 
@@ -220,13 +224,18 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 20,
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 5,
+    gap: 10,
+  },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     color: theme.colors.neonPurple,
-    textAlign: 'center',
-    marginTop: 10,
-    marginBottom: 5,
   },
   subtitle: {
     fontSize: 14,
