@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { X, TrendingUp, AlertTriangle, Calendar, Star } from 'lucide-react-native';
+import { X, TrendingUp, AlertTriangle, Calendar, Star, PieChart } from 'lucide-react-native';
 import { theme } from '../theme/theme';
 import { Transaction } from '../types';
 
@@ -42,8 +42,16 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({ visible, onClose, 
 
   const formatPLN = (val: number) => `${val.toFixed(2)} PLN`;
 
+  const categoryTotals = expenses.reduce((acc, t) => {
+    acc[t.category] = (acc[t.category] || 0) + t.amount;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const sortedCategories = Object.entries(categoryTotals)
+    .sort(([, a], [, b]) => b - a);
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.overlay}>
         <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFillObject} />
         
@@ -55,7 +63,7 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({ visible, onClose, 
             </TouchableOpacity>
           </View>
 
-          <View style={styles.content}>
+          <ScrollView style={styles.content}>
             
             <View style={styles.card}>
               <View style={styles.cardHeader}>
@@ -96,22 +104,38 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({ visible, onClose, 
               </View>
             )}
 
-            {biggestExpense && (
-              <View style={styles.card}>
-                <View style={styles.cardHeader}>
-                  <AlertTriangle size={20} color={theme.colors.danger} />
-                  <Text style={styles.cardTitle}>Największy wydatek</Text>
-                </View>
-                <Text style={styles.cardValue}>{formatPLN(biggestExpense.amount)}</Text>
-                <Text style={styles.cardDesc}>{biggestExpense.description} ({biggestExpense.category})</Text>
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
+                <AlertTriangle size={20} color={theme.colors.danger} />
+                <Text style={styles.cardTitle}>Największy wydatek (Ten miesiąc)</Text>
               </View>
-            )}
+              {largestExpense ? (
+                <>
+                  <Text style={[styles.cardValue, { color: theme.colors.danger }]}>{formatPLN(largestExpense.amount)}</Text>
+                  <Text style={styles.cardDesc}>{largestExpense.description} ({largestExpense.category})</Text>
+                </>
+              ) : (
+                <Text style={styles.cardDesc}>Brak wydatków</Text>
+              )}
+            </View>
 
-            {expenses.length === 0 && (
-              <Text style={styles.emptyText}>Brak wydatków w tym miesiącu do analizy.</Text>
-            )}
-
-          </View>
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
+                <PieChart size={20} color={theme.colors.neonBlue} />
+                <Text style={styles.cardTitle}>Struktura wydatków</Text>
+              </View>
+              {sortedCategories.length > 0 ? (
+                sortedCategories.map(([cat, amount], idx) => (
+                  <View key={cat} style={styles.catRow}>
+                    <Text style={styles.catName}>{idx + 1}. {cat}</Text>
+                    <Text style={styles.catAmount}>{formatPLN(amount)}</Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={styles.cardDesc}>Brak danych</Text>
+              )}
+            </View>
+          </ScrollView>
         </View>
       </View>
     </Modal>
@@ -133,6 +157,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.glassBorder,
     overflow: 'hidden',
+    maxHeight: '90%',
   },
   header: {
     flexDirection: 'row',
@@ -153,7 +178,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    gap: 16,
   },
   card: {
     backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -161,6 +185,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.05)',
+    marginBottom: 16,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -177,21 +202,32 @@ const styles = StyleSheet.create({
   },
   cardValue: {
     fontFamily: theme.typography.fontFamily,
-    fontSize: 24,
     fontWeight: 'bold',
+    fontSize: 24,
+    marginBottom: 4,
     color: theme.colors.textPrimary,
   },
   cardDesc: {
     fontFamily: theme.typography.fontFamily,
+    color: theme.colors.textSecondary,
     fontSize: 12,
-    color: theme.colors.textSecondary,
-    marginTop: 4,
-    fontStyle: 'italic',
   },
-  emptyText: {
+  catRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  catName: {
     fontFamily: theme.typography.fontFamily,
-    color: theme.colors.textSecondary,
-    textAlign: 'center',
-    marginTop: 20,
+    color: theme.colors.textPrimary,
+    fontSize: 14,
+  },
+  catAmount: {
+    fontFamily: theme.typography.fontFamily,
+    color: theme.colors.danger,
+    fontSize: 14,
+    fontWeight: 'bold',
   }
 });

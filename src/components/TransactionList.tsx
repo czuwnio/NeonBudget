@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { Trash2, ShoppingCart, Home, Car, Zap, CircleDollarSign, PlusCircle, Pencil } from 'lucide-react-native';
+import { Trash2, ShoppingCart, Home, Car, Zap, CircleDollarSign, PlusCircle, Pencil, ArrowDown, ArrowUp, Calendar, CalendarClock } from 'lucide-react-native';
 import { theme } from '../theme/theme';
 import { Transaction } from '../types';
 
@@ -46,17 +46,40 @@ const getCategoryIcon = (category: string, type: string) => {
 };
 
 export const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDeleteTransaction, onEditTransaction }) => {
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'highest' | 'lowest'>('newest');
+
+  const sortedTransactions = [...transactions].sort((a, b) => {
+    switch (sortOrder) {
+      case 'newest': return new Date(b.date).getTime() - new Date(a.date).getTime();
+      case 'oldest': return new Date(a.date).getTime() - new Date(b.date).getTime();
+      case 'highest': return b.amount - a.amount;
+      case 'lowest': return a.amount - b.amount;
+      default: return 0;
+    }
+  });
+
   return (
     <View style={styles.container}>
       <BlurView intensity={20} tint="dark" style={styles.glassCard}>
-        <Text style={styles.cardLabel}>HISTORIA</Text>
+        <View style={styles.headerRow}>
+          <Text style={styles.cardLabel}>HISTORIA ({transactions.length})</Text>
+          <View style={styles.sortControls}>
+            <TouchableOpacity onPress={() => setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')} style={[styles.sortBtn, (sortOrder === 'newest' || sortOrder === 'oldest') && styles.sortBtnActive]}>
+              <Calendar size={14} color={sortOrder === 'newest' || sortOrder === 'oldest' ? '#fff' : theme.colors.textSecondary} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setSortOrder(sortOrder === 'highest' ? 'lowest' : 'highest')} style={[styles.sortBtn, (sortOrder === 'highest' || sortOrder === 'lowest') && styles.sortBtnActive]}>
+              <ArrowDown size={14} color={sortOrder === 'highest' || sortOrder === 'lowest' ? '#fff' : theme.colors.textSecondary} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {transactions.length === 0 ? (
           <Text style={styles.emptyText}>
             Wygląda na to, że nic tu nie ma. Dodaj pierwszą transakcję!
           </Text>
         ) : (
           <View>
-            {transactions.map(t => (
+            {sortedTransactions.map(t => (
               <View key={t.id} style={styles.txItem}>
                 
                 <View style={styles.iconContainer}>
@@ -120,8 +143,28 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: theme.colors.textSecondary,
     letterSpacing: 1.5,
-    marginBottom: theme.spacing.md,
     textTransform: 'uppercase',
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: theme.spacing.md,
+  },
+  sortControls: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  sortBtn: {
+    padding: 6,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  sortBtnActive: {
+    backgroundColor: 'rgba(123, 44, 191, 0.3)',
+    borderColor: theme.colors.neonPurple,
   },
   emptyText: {
     fontFamily: theme.typography.fontFamily, fontWeight: '500',
