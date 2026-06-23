@@ -201,7 +201,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
 
         <Modal visible={isCalendarVisible} transparent animationType="fade">
           <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-            <View style={{ width: '100%', backgroundColor: theme.colors.surface, borderRadius: theme.borderRadius.md, overflow: 'hidden' }}>
+            <View style={{ width: '100%', backgroundColor: '#1E1E2D', borderRadius: theme.borderRadius.md, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }}>
               <Calendar
                 current={customDate}
                 onDayPress={(day: any) => {
@@ -209,15 +209,15 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
                   setCalendarVisible(false);
                 }}
                 theme={{
-                  calendarBackground: theme.colors.surface,
-                  textSectionTitleColor: theme.colors.textSecondary,
+                  calendarBackground: '#1E1E2D',
+                  textSectionTitleColor: '#A0A0B0',
                   selectedDayBackgroundColor: theme.colors.neonPurple,
                   selectedDayTextColor: '#ffffff',
                   todayTextColor: theme.colors.neonGreen,
-                  dayTextColor: theme.colors.textPrimary,
+                  dayTextColor: '#FFFFFF',
                   textDisabledColor: 'rgba(255,255,255,0.2)',
                   arrowColor: theme.colors.neonPurple,
-                  monthTextColor: theme.colors.textPrimary,
+                  monthTextColor: '#FFFFFF',
                   textMonthFontWeight: 'bold',
                   textDayFontFamily: theme.typography.fontFamily,
                   textMonthFontFamily: theme.typography.fontFamily,
