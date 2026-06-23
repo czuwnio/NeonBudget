@@ -132,10 +132,10 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
             }}
           />
 
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: theme.spacing.xs }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: theme.spacing.md }}>
           <TextInput
             style={[styles.input, { flex: 1, marginBottom: 0 }]}
-            placeholder="Opis (np. Zakupy, Czynsz)"
+            placeholder="Opis"
             placeholderTextColor={theme.colors.textSecondary}
             value={description}
             onChangeText={setDescription}
@@ -144,25 +144,10 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
             <Camera size={20} color={theme.colors.neonGreen} />
           </TouchableOpacity>
         </View>
-
-        {customTags.length > 0 && (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: theme.spacing.md }}>
-            {customTags.map((tag) => (
-            <TouchableOpacity 
-              key={tag} 
-              style={[styles.quickAmtBtn, { marginRight: 8, paddingHorizontal: 12 }]}
-              onPress={() => setDescription(prev => prev ? `${prev} ${tag}` : tag)}
-            >
-              <Text style={styles.quickAmtText}>{tag}</Text>
-            </TouchableOpacity>
-          ))}
-          </ScrollView>
-        )}
-
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: theme.spacing.md }}>
           <TextInput
             style={[styles.input, { flex: 1, marginBottom: 0 }]}
-            placeholder="Data (YYYY-MM-DD)"
+            placeholder="Data"
             placeholderTextColor={theme.colors.textSecondary}
             value={customDate}
             onChangeText={setCustomDate}
