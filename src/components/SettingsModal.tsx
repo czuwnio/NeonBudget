@@ -340,8 +340,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <Text style={styles.helperText}>Bezpowrotnie usuwa wszystkie transakcje z pamięci urządzenia.</Text>
             </View>
 
-            </View>
-
             <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
               <Text style={styles.saveBtnText}>Zapisz ustawienia</Text>
             </TouchableOpacity>
