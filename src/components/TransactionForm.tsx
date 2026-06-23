@@ -288,6 +288,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   quickAmtText: {
     color: theme.colors.textPrimary,
