@@ -737,18 +737,6 @@ function MainApp() {
               </View>
             )}
 
-            {isGameVisible && (
-              <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.95)', zIndex: 10000, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ color: theme.colors.neonGreen, fontSize: 40, fontWeight: 'bold', marginBottom: 60, fontFamily: theme.typography.fontFamily }}>Zebrane Monety: {gameCoins}</Text>
-                <TouchableOpacity onPress={() => setGameCoins(c => c + 1)} style={{ backgroundColor: theme.colors.neonPurple, width: 160, height: 160, borderRadius: 80, justifyContent: 'center', alignItems: 'center', shadowColor: theme.colors.neonPurple, shadowOpacity: 1, shadowRadius: 30 }}>
-                  <Text style={{ fontSize: 60 }}>🪙</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => { setGameVisible(false); setGameCoins(0); }} style={{ marginTop: 80, padding: 15, borderWidth: 1, borderColor: '#fff', borderRadius: 8 }}>
-                  <Text style={{ color: '#fff', fontSize: 18 }}>Powrót do budżetu</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-
             <TransactionForm 
               onSubmitTransaction={handleSubmitTransaction} 
               validationError={validationError} 
