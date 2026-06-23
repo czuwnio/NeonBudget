@@ -57,15 +57,18 @@ export const DateStrip: React.FC<Props> = ({ selectedMonthKey, transactions, sel
           const hasExpense = dayTx.some(t => t.type === 'expense');
 
           const isSelected = selectedDate === fullDateStr.split('T')[0];
+          
+          const today = new Date();
+          const isToday = dateObj.getDate() === today.getDate() && dateObj.getMonth() === today.getMonth() && dateObj.getFullYear() === today.getFullYear();
 
           return (
             <TouchableOpacity 
               key={day} 
-              style={[styles.dayCard, isSelected && styles.dayCardSelected]}
+              style={[styles.dayCard, isToday && styles.dayCardToday, isSelected && styles.dayCardSelected]}
               onPress={() => onSelectDate(isSelected ? null : fullDateStr.split('T')[0])}
             >
-              <Text style={[styles.dayOfWeek, isSelected && styles.textSelected]}>{dayOfWeek}</Text>
-              <Text style={[styles.dayNumber, isSelected && styles.textSelected]}>{day}</Text>
+              <Text style={[styles.dayOfWeek, isToday && styles.textToday, isSelected && styles.textSelected]}>{dayOfWeek}</Text>
+              <Text style={[styles.dayNumber, isToday && styles.textToday, isSelected && styles.textSelected]}>{day}</Text>
               <View style={styles.dotContainer}>
                 {hasIncome && <View style={[styles.dot, { backgroundColor: theme.colors.neonGreen }]} />}
                 {hasExpense && <View style={[styles.dot, { backgroundColor: theme.colors.danger }]} />}
@@ -135,6 +138,13 @@ const styles = StyleSheet.create({
   },
   textSelected: {
     color: '#fff',
+  },
+  dayCardToday: {
+    borderColor: 'rgba(56, 176, 0, 0.4)',
+    backgroundColor: 'rgba(56, 176, 0, 0.1)',
+  },
+  textToday: {
+    color: theme.colors.neonGreen,
   },
   dotContainer: {
     flexDirection: 'row',
