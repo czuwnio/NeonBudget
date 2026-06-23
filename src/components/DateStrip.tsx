@@ -34,7 +34,7 @@ export const DateStrip: React.FC<Props> = ({ selectedMonthKey, transactions, sel
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Dziennik (Filtruj dni)</Text>
+        <Text style={styles.title}>Dziennik</Text>
         {selectedDate && (
           <TouchableOpacity onPress={() => onSelectDate(null)}>
             <Text style={styles.clearBtn}>Pokaż cały miesiąc</Text>

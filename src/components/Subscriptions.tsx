@@ -51,7 +51,7 @@ export const Subscriptions: React.FC<Props> = ({ subs, onAddSub, onDeleteSub, on
         <View style={styles.addForm}>
           <TextInput 
             style={styles.input} 
-            placeholder="Nazwa (np. Netflix)" 
+            placeholder="Nazwa" 
             placeholderTextColor={theme.colors.textSecondary}
             value={newName}
             onChangeText={setNewName}

@@ -290,7 +290,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <View style={styles.addRow}>
                 <TextInput
                   style={styles.input}
-                  placeholder="Nowy opis (np. paliwo, zakupy)"
+                  placeholder="Nowy opis"
                   placeholderTextColor={theme.colors.textSecondary}
                   value={newCustomTag}
                   onChangeText={setNewCustomTag}

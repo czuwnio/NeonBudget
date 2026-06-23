@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, ScrollView, Modal } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { ArrowUpRight, ArrowDownRight, Camera } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { theme } from '../theme/theme';
+
+LocaleConfig.locales['pl'] = {
+  monthNames: ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'],
+  monthNamesShort: ['Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz','Paź','Lis','Gru'],
+  dayNames: ['Niedziela','Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota'],
+  dayNamesShort: ['Nd','Pn','Wt','Śr','Cz','Pt','Sb'],
+  today: 'Dziś'
+};
+LocaleConfig.defaultLocale = 'pl';
 
 interface TransactionFormProps {
   onSubmitTransaction: (amount: string, description: string, type: 'income' | 'expense', category: string, dateStr: string) => void;
@@ -29,6 +39,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [category, setCategory] = useState(expenseCategories[0] || 'Jedzenie');
   const [customDate, setCustomDate] = useState(new Date().toISOString().split('T')[0]);
+  const [isCalendarVisible, setCalendarVisible] = useState(false);
 
   const currentCategories = type === 'income' ? incomeCategories : expenseCategories;
 
@@ -145,14 +156,14 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
           </TouchableOpacity>
         </View>
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: theme.spacing.md }}>
-          <TextInput
-            style={[styles.input, { flex: 1, marginBottom: 0 }]}
-            placeholder="Data"
-            placeholderTextColor={theme.colors.textSecondary}
-            value={customDate}
-            onChangeText={setCustomDate}
-            maxLength={10}
-          />
+          <TouchableOpacity 
+            style={[styles.input, { flex: 1, marginBottom: 0, justifyContent: 'center' }]}
+            onPress={() => setCalendarVisible(true)}
+          >
+            <Text style={{ color: customDate ? theme.colors.textPrimary : theme.colors.textSecondary }}>
+              {customDate || "Wybierz datę"}
+            </Text>
+          </TouchableOpacity>
           <TouchableOpacity 
             style={[styles.quickAmtBtn, { paddingHorizontal: 16 }]}
             onPress={() => setCustomDate(new Date().toISOString().split('T')[0])}
@@ -187,6 +198,39 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
             </TouchableOpacity>
           )}
         </View>
+
+        <Modal visible={isCalendarVisible} transparent animationType="fade">
+          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+            <View style={{ width: '100%', backgroundColor: theme.colors.surface, borderRadius: theme.borderRadius.md, overflow: 'hidden' }}>
+              <Calendar
+                current={customDate}
+                onDayPress={(day: any) => {
+                  setCustomDate(day.dateString);
+                  setCalendarVisible(false);
+                }}
+                theme={{
+                  calendarBackground: theme.colors.surface,
+                  textSectionTitleColor: theme.colors.textSecondary,
+                  selectedDayBackgroundColor: theme.colors.neonPurple,
+                  selectedDayTextColor: '#ffffff',
+                  todayTextColor: theme.colors.neonGreen,
+                  dayTextColor: theme.colors.textPrimary,
+                  textDisabledColor: 'rgba(255,255,255,0.2)',
+                  arrowColor: theme.colors.neonPurple,
+                  monthTextColor: theme.colors.textPrimary,
+                  textMonthFontWeight: 'bold',
+                  textDayFontFamily: theme.typography.fontFamily,
+                  textMonthFontFamily: theme.typography.fontFamily,
+                  textDayHeaderFontFamily: theme.typography.fontFamily,
+                }}
+              />
+              <TouchableOpacity style={{ padding: 16, alignItems: 'center', borderTopWidth: 1, borderColor: 'rgba(255,255,255,0.05)' }} onPress={() => setCalendarVisible(false)}>
+                <Text style={{ color: theme.colors.textSecondary, fontFamily: theme.typography.fontFamily }}>Anuluj</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
       </BlurView>
     </View>
   );
